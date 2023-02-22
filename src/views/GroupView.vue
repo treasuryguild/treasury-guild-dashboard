@@ -16,19 +16,42 @@ const projectNames = ref([]);
 const proposals = ref([]);
 const treasuryWallets = ref([]);
 const project_id = ref();
-const labels = [];
-const labelsData = [];
+let labels = [];
+let labelsData = [];
 let wallets = [];
 const group = route.params.group;
+let lastRefresh2 = 0
+let projectLabels = []
+let projectLabelsData = []
+let projectLabelsName = []
+let chart = null;
 
-onMounted(() => {
+onMounted(async () => {
+  lastRefresh2 = parseInt(localStorage.getItem("refreshtime2"))
+    ? parseInt(localStorage.getItem("refreshtime2"))
+    : 0;
+  projectLabels = JSON.parse(localStorage.getItem("projectlabels"))?JSON.parse(localStorage.getItem("projectlabels")):[];
+  projectLabelsData = JSON.parse(localStorage.getItem("projectlabelsdata"))?JSON.parse(localStorage.getItem("projectlabelsdata")):[];
+  projectLabelsName = localStorage.getItem("projectlabelsname")?localStorage.getItem("projectlabelsname"):"";
   everyProject = JSON.parse(localStorage.getItem("allprojects"));
   window.scrollTo(0, 0);
   store.changeGroup(group);
   loadProjects();
-  stats();
-  setTimeout(function () {
-    console.log("GView loading", store.group, everyProject);
+  if (projectLabels && projectLabelsName == group) {
+    await projectChart();
+    console.log("passed")
+  } else {
+    await stats();
+    await projectChart();
+  }
+  setTimeout(async function () {
+    if (parseInt(lastRefresh2) < parseInt(Date.now()) - 300000) {
+      localStorage.setItem("refreshtime2", Date.now());
+      lastRefresh2 = Date.now();
+      console.log("projectLabels", projectLabels, projectLabelsData, Date.now());
+      await stats();
+      await projectChart();
+    }
   }, 1000);
 });
 async function loadProjects() {
@@ -48,6 +71,8 @@ async function loadProjects() {
   console.log("Lets go", proposals.value);
 }
 async function stats() {
+  labels = []
+  labelsData = []
   const { all_stats } = await useGetAllStats(store.group);
   allStats.value = all_stats.value;
   for (let i in allStats.value) {
@@ -62,14 +87,21 @@ async function stats() {
       labelsData.push(allStats.value[i]);
     }
   }
+  localStorage.setItem("projectlabels", JSON.stringify(labels));
+  localStorage.setItem("projectlabelsdata", JSON.stringify(labelsData));
+  localStorage.setItem("projectlabelsname", store.group);
   console.log("all_stats.value", allStats.value, labels, labelsData);
-  const label = labels;
+}
+async function projectChart() {
+  projectLabels = JSON.parse(localStorage.getItem("projectlabels"))?JSON.parse(localStorage.getItem("projectlabels")):[];
+  projectLabelsData = JSON.parse(localStorage.getItem("projectlabelsdata"))?JSON.parse(localStorage.getItem("projectlabelsdata")):[];
+  const label = projectLabels;
   const data = {
     labels: label,
     datasets: [
       {
         label: "total tasks",
-        data: labelsData,
+        data: projectLabelsData,
         backgroundColor: [
           "rgba(255, 99, 132, 0.2)", // color for first bar
           "rgba(54, 162, 235, 0.2)", // color for second bar
@@ -109,7 +141,15 @@ async function stats() {
       },
     },
   };
-  const chart = new Chart(document.getElementById("myChart"), config);
+
+  if (chart) {
+    chart.destroy();
+    chart = null;
+  }
+
+  // Create a new chart instance
+  const ctx = document.getElementById('myChart');
+  chart = new Chart(ctx, config);
 }
 </script>
 
