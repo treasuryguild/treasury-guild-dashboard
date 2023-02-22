@@ -1,0 +1,70 @@
+// mouse.js
+import { ref } from 'vue' 
+import { useStore } from '../store/index';
+import { supabase } from '../supabase'
+import { useGetTransactions } from './gettransactions'
+
+// by convention, composable function names start with "use"
+export async function useGetAllStats(groupname) {
+  
+    const store = useStore()
+    const loading = ref(true)
+  
+    const all_projects = ref([])
+    const all_txs = ref([])
+
+    const no_txs = ref(0)
+    const no_wallets = ref(0)
+    const all_stats = ref([])
+
+    const allProjectIds = ref([])
+
+  async function getProjectDetails() {  // still busy building and testing
+    try {
+      loading.value = true
+      let { data, error, status } = await supabase
+        .from('groups')
+        .select(`group_id, projects(project_id)`)
+        .eq('group_name', groupname)
+        
+      if (error && status !== 406) throw error
+      if (data) {
+        all_projects.value = data 
+      }
+    } catch (error) {
+      alert(error.message)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function getTxs() {
+    for (let i in all_projects.value[0].projects) {
+      allProjectIds.value.push(all_projects.value[0].projects[i].project_id)
+    }
+    console.log("Results",allProjectIds.value)
+    try {
+      loading.value = true
+      let { data, error, status } = await supabase
+        .from('transactions')
+        .select()
+        .in('project_id', allProjectIds.value)
+        
+      if (error && status !== 406) throw error
+      if (data) {
+        all_txs.value = data 
+        console.log("Results2",all_txs.value)
+      }
+    } catch (error) {
+      alert(error.message)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  await getProjectDetails()
+  await getTxs()
+  all_stats.value = all_txs.value
+
+  return { all_stats }
+}
