@@ -1,14 +1,14 @@
 <script setup>
-import { useStore } from '../store/index'
+import { useStore } from "../store/index";
 
-const store = useStore()
+const store = useStore();
 </script>
 <template>
-    <div>
-        Dashboard
-        {{ store.name }}{{ store.number }}{{ store.group }}{{ store.project }}
-        <button @click="store.changeName('Roberto')">Change name to Roberto</button>
-        <button @click="store.changeNumber(2)">Change number to 2</button>
-        <button @click="store.$reset">reset store</button>
-    </div>
+  <div>
+    Dashboard
+    {{ store.name }}{{ store.number }}{{ store.group }}{{ store.project }}
+    <button @click="store.changeName('Roberto')">Change name to Roberto</button>
+    <button @click="store.changeNumber(2)">Change number to 2</button>
+    <button @click="store.$reset">reset store</button>
+  </div>
 </template>

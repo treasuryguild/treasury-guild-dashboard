@@ -5,7 +5,9 @@ import { useStore } from "../store/index";
 import { useGetAllStats } from "../composables/getallstats";
 import Chart from "chart.js/auto";
 import { Colors } from "chart.js";
+
 Chart.register(Colors);
+
 const store = useStore();
 const route = useRoute();
 let everyProject = [];
@@ -18,6 +20,7 @@ const labels = [];
 const labelsData = [];
 let wallets = [];
 const group = route.params.group;
+
 onMounted(() => {
   everyProject = JSON.parse(localStorage.getItem("allprojects"));
   window.scrollTo(0, 0);
