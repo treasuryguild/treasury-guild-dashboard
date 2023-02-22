@@ -12,6 +12,8 @@ export async function useGetAllStats(groupname) {
   
     const all_projects = ref([])
     const all_txs = ref([])
+    const all_txTypes = ref({})
+    const all_txTypeValues = ref([])
 
     const no_txs = ref(0)
     const no_wallets = ref(0)
@@ -38,7 +40,7 @@ export async function useGetAllStats(groupname) {
     }
   }
 
-  async function getTxs() {
+  async function getContributions() {
     for (let i in all_projects.value[0].projects) {
       allProjectIds.value.push(all_projects.value[0].projects[i].project_id)
     }
@@ -46,7 +48,7 @@ export async function useGetAllStats(groupname) {
     try {
       loading.value = true
       let { data, error, status } = await supabase
-        .from('transactions')
+        .from('contributions')
         .select()
         .in('project_id', allProjectIds.value)
         
@@ -62,9 +64,21 @@ export async function useGetAllStats(groupname) {
     }
   }
 
+  async function getStats() {
+    for (let i in all_txs.value) {
+      if (!all_txTypes.value[all_txs.value[i].task_type]) { 
+        all_txTypes.value[all_txs.value[i].task_type] = 1
+      } else {
+        all_txTypes.value[all_txs.value[i].task_type] = all_txTypes.value[all_txs.value[i].task_type] + 1
+      }
+    }
+  }
+
   await getProjectDetails()
-  await getTxs()
-  all_stats.value = all_txs.value
+  await getContributions()
+  await getStats()
+
+  all_stats.value = all_txTypes.value
 
   return { all_stats }
 }
