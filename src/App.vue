@@ -1,29 +1,29 @@
 <script setup>
-  import { onMounted } from 'vue'
-  import { useRoute, useRouter } from 'vue-router'
-  import { useStore } from './store/index'
-  import NavBar from './components/NavBar.vue'
+import { onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useStore } from "./store/index";
+import NavBar from "./components/NavBar.vue";
 
-  const store = useStore()
-  const route = useRoute()
-  const router = useRouter()
+const store = useStore();
+const route = useRoute();
+const router = useRouter();
 
-  const group = route.params.group
-  const project = route.params.project
+const group = route.params.group;
+const project = route.params.project;
 
-  onMounted(() => {
-    //router.push('/')
-  })
+onMounted(() => {
+  //router.push('/')
+});
 </script>
 
 <template>
   <div>
-  <div class="navbox">
-    <NavBar class="navbar" />
-  </div>
+    <div class="navbox">
+      <NavBar class="navbar" />
+    </div>
     <RouterView></RouterView>
-  
-  <!-- <Suspense>
+
+    <!-- <Suspense>
     <ProjectUpdater />
   </Suspense> -->
   </div>
