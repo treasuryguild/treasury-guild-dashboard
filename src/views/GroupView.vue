@@ -90,11 +90,6 @@ async function stats() {
     type: "bar",
     data: data,
     options: {
-      plugins: {
-        colors: {
-          forceOverride: true,
-        },
-      },
       scales: {
         y: {
           ticks: {
