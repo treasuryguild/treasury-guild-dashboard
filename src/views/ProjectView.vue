@@ -97,19 +97,18 @@ onMounted(async () => {
       }
     }
   }
-  loading.value = false;
   console.log("PView loading", txrows.value, header.value);
   //await getProjectDetails();
-  if (parseInt(lastRefresh3) < parseInt(Date.now()) - 30000) {
+  if (parseInt(lastRefresh3) < parseInt(Date.now()) - 300000) {
     localStorage.setItem("refreshtime3", Date.now());
     lastRefresh3 = Date.now();
     console.log("projectDate", Date.now());
     await getProjectDetails();
   }
+  loading.value = false;
 });
 
 async function getProjectDetails() {
-  loading.value = true;
   // still busy building and testing
   txrows.value = [];
   totalPayouts.value = 0;
@@ -284,7 +283,6 @@ async function getProjectDetails() {
       }
     }
   }
-  loading.value = false;
   localStorage.setItem("allprojects", JSON.stringify(everyProject));
   console.log("everyProject", everyProject);
 }
