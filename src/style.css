@@ -39,6 +39,27 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+body {
+    margin: auto;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow: auto;
+    background: linear-gradient(315deg, rgba(32, 72, 113) 38%, rgb(29, 10, 67) 98%);
+    animation: gradient 20s ease infinite;
+    background-size: 400% 400%;
+    background-attachment: fixed;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 0%;
+    }
+    50% {
+        background-position: 100% 100%;
+    }
+    100% {
+        background-position: 0% 0%;
+    }
+}
 
 h1 {
   font-size: 3.2em;

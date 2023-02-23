@@ -83,6 +83,14 @@ async function stats() {
   labelsData = [];
   const { all_stats } = await useGetAllStats(store.group);
   allStats.value = all_stats.value;
+  const sortedKeys = Object.keys(allStats.value).sort();
+  const sortedObj = {};
+  for (let i = 0; i < sortedKeys.length; i++) {
+    const key = sortedKeys[i];
+    sortedObj[key] = allStats.value[key];
+  }
+  allStats.value = sortedObj;
+
   for (let i in allStats.value) {
     if (
       i != "" &&

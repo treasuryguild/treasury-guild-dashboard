@@ -10,18 +10,31 @@ import { useGetContributions } from "../composables/getcontributions";
 import { useGetAllContributions } from "../composables/getallcontributions";
 import { useGetDistributions } from "../composables/getdistributions";
 import { useGetAllDistributions } from "../composables/getalldistributions";
+import { useGetAllStatsPerWallet } from "../composables/allstatsperwallet";
+import Chart from "chart.js/auto";
+import { Colors } from "chart.js";
+
+Chart.register(Colors);
+let chart = null;
 
 const store = useStore();
 const route = useRoute();
 
 const loading = ref(false);
-let totaltxs = ref();
+let totaltxs = ref(0);
 let totalIn = ref("");
 let totalOut = ref("");
 let totalFees = ref(0);
 let balance = ref("");
-let totalPayouts = ref();
+let totalPayouts = ref(0);
 const lovelaceR = ref();
+
+let labels = [];
+let labelsData = [];
+let projectLabels = [];
+let projectLabelsData = [];
+let projectId = "";
+const allStats = ref();
 
 const txrows = ref([]);
 const header = ref([]);
@@ -93,9 +106,28 @@ onMounted(async () => {
         if (everyProject[i].projects[j].project_name == store.project) {
           txrows.value = everyProject[i].projects[j].txrows;
           header.value = everyProject[i].projects[j].header;
+          totalPayouts.value = everyProject[i].projects[j].total_payouts;
+          totaltxs.value = everyProject[i].projects[j].total_txs;
+          totalIn.value = everyProject[i].projects[j].total_in;
+          totalOut.value = everyProject[i].projects[j].total_out;
+          totalFees.value = everyProject[i].projects[j].total_fees;
+          lovelaceR.value = everyProject[i].projects[j].balance;
+          projectLabels = everyProject[i].projects[j].stat_labels;
+          projectLabelsData = everyProject[i].projects[j].stat_labels_data;
+          projectId = everyProject[i].projects[j].project_id;
         }
       }
     }
+  }
+  if (txrows.value == undefined) {
+    await getProjectDetails();
+  }
+  if (projectLabels) {
+    await projectChart();
+    console.log("passed");
+  } else {
+    await stats();
+    await projectChart();
   }
   console.log("PView loading", txrows.value, header.value);
   //await getProjectDetails();
@@ -113,6 +145,7 @@ async function getProjectDetails() {
   txrows.value = [];
   totalPayouts.value = 0;
   totaltxs.value = 0;
+  totalFees.value = 0;
   totalIn.value = 0;
   totalOut.value = 0;
   header.value = [
@@ -132,13 +165,13 @@ async function getProjectDetails() {
 
   const { project_id, wallet, group_id, website, project_type, budget_items } =
     await useGetProject();
-
   project_idRender.value = project_id.value;
   walletRender.value = wallet.value;
   group_idRender.value = group_id.value;
   websiteRender.value = website.value;
   project_typeRender.value = project_type.value;
   budget_itemsRender.value = budget_items.value;
+
   const { lovelace, tokens, tokenAmounts, nfts, nftPicture } =
     await useGetWallet(walletRender.value);
   lovelaceR.value = parseFloat(lovelace.value).toFixed(2);
@@ -278,6 +311,12 @@ async function getProjectDetails() {
         if (everyProject[i].projects[j].project_name == store.project) {
           everyProject[i].projects[j].txrows = txrows.value;
           everyProject[i].projects[j].header = header.value;
+          everyProject[i].projects[j].total_payouts = totalPayouts.value;
+          everyProject[i].projects[j].total_txs = totaltxs.value;
+          everyProject[i].projects[j].total_in = totalIn.value;
+          everyProject[i].projects[j].total_out = totalOut.value;
+          everyProject[i].projects[j].total_fees = totalFees.value;
+          everyProject[i].projects[j].balance = lovelaceR.value;
           console.log("Its alive", j);
         }
       }
@@ -387,6 +426,119 @@ async function downloadCSV() {
   link.click();
   document.body.removeChild(link);
 }
+
+async function stats() {
+  labels = [];
+  labelsData = [];
+  const { all_stats } = await useGetAllStatsPerWallet(store.group, projectId);
+  allStats.value = all_stats.value;
+  const sortedKeys = Object.keys(allStats.value).sort();
+  const sortedObj = {};
+  for (let i = 0; i < sortedKeys.length; i++) {
+    const key = sortedKeys[i];
+    sortedObj[key] = allStats.value[key];
+  }
+  allStats.value = sortedObj;
+  console.log("allStats.value", allStats.value);
+  for (let i in allStats.value) {
+    if (
+      i != "" &&
+      i != "Incoming" &&
+      i != "Rewards Withdrawal" &&
+      i != "Staking" &&
+      i != "Internal transfer"
+    ) {
+      labels.push(i);
+      labelsData.push(allStats.value[i]);
+    }
+  }
+
+  for (let i in everyProject) {
+    if (everyProject[i].group_name == store.group) {
+      for (let j in everyProject[i].projects) {
+        if (everyProject[i].projects[j].project_name == store.project) {
+          everyProject[i].projects[j].stat_labels = labels;
+          everyProject[i].projects[j].stat_labels_data = labelsData;
+          console.log("Its alive", j);
+        }
+      }
+    }
+  }
+  localStorage.setItem("allprojects", JSON.stringify(everyProject));
+  //localStorage.setItem("projectlabels", JSON.stringify(labels));
+  //localStorage.setItem("projectlabelsdata", JSON.stringify(labelsData));
+  console.log("all_stats.value", allStats.value, labels, labelsData);
+}
+async function projectChart() {
+  everyProject = JSON.parse(localStorage.getItem("allprojects"));
+  store.changeAllProjects(everyProject);
+  for (let i in everyProject) {
+    if (everyProject[i].group_name == store.group) {
+      for (let j in everyProject[i].projects) {
+        if (everyProject[i].projects[j].project_name == store.project) {
+          projectLabels = everyProject[i].projects[j].stat_labels;
+          projectLabelsData = everyProject[i].projects[j].stat_labels_data;
+          console.log("Its alive", j);
+        }
+      }
+    }
+  }
+  const label = projectLabels;
+  const data = {
+    labels: label,
+    datasets: [
+      {
+        label: "total tasks",
+        data: projectLabelsData,
+        backgroundColor: [
+          "rgba(255, 99, 132, 0.2)", // color for first bar
+          "rgba(54, 162, 235, 0.2)", // color for second bar
+          "rgba(255, 206, 86, 0.2)", // color for third bar
+          // add more colors here for additional bars
+        ],
+        borderColor: [
+          "rgba(255, 99, 132, 1)", // border color for first bar
+          "rgba(54, 162, 235, 1)", // border color for second bar
+          "rgba(255, 206, 86, 1)", // border color for third bar
+          // add more border colors here for additional bars
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+  const config = {
+    type: "bar",
+    data: data,
+    options: {
+      scales: {
+        y: {
+          ticks: {
+            color: "rgba(255, 255, 255, 0.87)",
+          },
+        },
+        x: {
+          ticks: {
+            color: "rgba(255, 255, 255, 0.87)",
+          },
+        },
+      },
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+    },
+  };
+
+  if (chart) {
+    chart.destroy();
+    chart = null;
+  }
+
+  // Create a new chart instance
+  const ctx = document.getElementById("myChart");
+  chart = new Chart(ctx, config);
+}
 </script>
 
 <template>
@@ -402,12 +554,17 @@ async function downloadCSV() {
         </div>
       </div>
       <div class="minicont">
-        <div>Number of txs - {{ totaltxs }}</div>
-        <div>Total Disbursements - {{ totalPayouts }}</div>
-        <div>Total In - {{ totalIn }}</div>
-        <div>Total Out - {{ totalOut }}</div>
-        <div>Fees - {{ totalFees }}</div>
-        <div>Balance - {{ lovelaceR }}</div>
+        <div id="stats">
+            <div>Number of txs - {{ totaltxs }}</div>
+            <div>Total Disbursements - {{ totalPayouts }}</div>
+            <div>Total In - {{ totalIn }}</div>
+            <div>Total Out - {{ totalOut }}</div>
+            <div>Fees - {{ totalFees }}</div>
+            <div>Balance - {{ lovelaceR }}</div>
+        </div>
+        <div id="statschart">
+          <canvas id="myChart"></canvas>
+        </div>
       </div>
     </div>
     <div class="cont" v-if="loading == false" id="fadeIn">
@@ -463,7 +620,7 @@ div {
   justify-content: space-between;
   align-items: baseline;
   border-radius: 8px;
-  margin: 1.2em;
+  margin: 1.0em;
   margin-bottom: 0.6em;
   border: 1px solid transparent;
   padding: 0.5em 1em;
@@ -494,7 +651,27 @@ div {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: space-between;
+}
+
+#stats {
+  margin-top: -0.5em;
+  margin-right: -0.9em;
+  margin-left: -0.9em;
+  background-color: rgb(58, 55, 51);
+  flex-grow: 1;
+  margin-bottom: -0.8em;
+}
+
+#statschart {
+  flex-grow: 1;
+  max-width: 600px;
+  max-height: 280px;
+  margin-left: 0.9em;
+  justify-content: space-around;
+}
+
+#ministats {
+  background-color: rgb(58, 55, 51);
 }
 
 #table-container {
