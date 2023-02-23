@@ -100,8 +100,7 @@ onMounted(async () => {
   loading.value = false;
   console.log("PView loading", txrows.value, header.value);
   //await getProjectDetails();
-  if (parseInt(lastRefresh3) < parseInt(Date.now()) - 300000) {
-    loading.value = true;
+  if (parseInt(lastRefresh3) < parseInt(Date.now()) - 30000) {
     localStorage.setItem("refreshtime3", Date.now());
     lastRefresh3 = Date.now();
     console.log("projectDate", Date.now());
@@ -110,6 +109,7 @@ onMounted(async () => {
 });
 
 async function getProjectDetails() {
+  loading.value = true;
   // still busy building and testing
   txrows.value = [];
   totalPayouts.value = 0;
