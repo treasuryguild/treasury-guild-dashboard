@@ -70,18 +70,43 @@ const tokensR = ref([]);
 const amountsR = ref([]);
 const agixR = ref([]);
 
+let everyProject = [];
+let lastRefresh3 = [];
+let tableRows = [];
+let tableHeaders = [];
+
 const group = route.params.group;
 const project = route.params.project;
 
-onMounted(() => {
+onMounted(async () => {
+  lastRefresh3 = parseInt(localStorage.getItem("refreshtime3"))
+    ? parseInt(localStorage.getItem("refreshtime3"))
+    : 0;
   loading.value = true;
-  console.log("Projectview - Params", project);
+  everyProject = JSON.parse(localStorage.getItem("allprojects"));
+  store.changeAllProjects(everyProject);
   store.changeGroup(group);
   store.changeProject(project);
-  setTimeout(function () {
-    console.log("PView loading", store.group);
-    getProjectDetails();
-  }, 1000);
+  for (let i in everyProject) {
+    if (everyProject[i].group_name == store.group) {
+      for (let j in everyProject[i].projects) {
+        if (everyProject[i].projects[j].project_name == store.project) {
+          txrows.value = everyProject[i].projects[j].txrows;
+          header.value = everyProject[i].projects[j].header;
+        }
+      }
+    }
+  }
+  loading.value = false;
+  console.log("PView loading", txrows.value, header.value);
+  //await getProjectDetails();
+  if (parseInt(lastRefresh3) < parseInt(Date.now()) - 300000) {
+    loading.value = true;
+    localStorage.setItem("refreshtime3", Date.now());
+    lastRefresh3 = Date.now();
+    console.log("projectDate", Date.now());
+    await getProjectDetails();
+  }
 });
 
 async function getProjectDetails() {
@@ -248,7 +273,20 @@ async function getProjectDetails() {
     txTotalTokens.value,
     headerTokens.value
   );
+  for (let i in everyProject) {
+    if (everyProject[i].group_name == store.group) {
+      for (let j in everyProject[i].projects) {
+        if (everyProject[i].projects[j].project_name == store.project) {
+          everyProject[i].projects[j].txrows = txrows.value;
+          everyProject[i].projects[j].header = header.value;
+          console.log("Its alive", j);
+        }
+      }
+    }
+  }
   loading.value = false;
+  localStorage.setItem("allprojects", JSON.stringify(everyProject));
+  console.log("everyProject", everyProject);
 }
 
 async function getSingleTransaction(txid) {

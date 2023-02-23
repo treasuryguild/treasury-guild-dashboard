@@ -16,7 +16,7 @@ let everyProject = [];
 const store = useStore();
 let lastRefresh = 0;
 
-onMounted(() => {
+onMounted(async () => {
   lastRefresh = parseInt(localStorage.getItem("refreshtime"))
     ? parseInt(localStorage.getItem("refreshtime"))
     : 0;
@@ -25,18 +25,18 @@ onMounted(() => {
   store.changeAllProjects(everyProject);
   if (everyProject == null) {
     // all_projects == null
-    getGroups();
+    console.log("all_projects == null -> Reloading")
+    await getGroups();
   } else {
-    getMenu();
+    await getMenu();
   }
-  setTimeout(function () {
-    if (parseInt(lastRefresh) < parseInt(Date.now()) - 300000) {
-      localStorage.setItem("refreshtime", Date.now());
-      lastRefresh = Date.now();
-      console.log("PView loading", everyProject, Date.now());
-      getGroups();
-    }
-  }, 1000);
+  if (parseInt(lastRefresh) < parseInt(Date.now()) - 300000) {
+    localStorage.setItem("refreshtime", Date.now());
+    lastRefresh = Date.now();
+    console.log("Reloading", everyProject, Date.now());
+    localStorage.removeItem("allprojects");
+    await getGroups();
+  }
 });
 
 async function getGroups() {

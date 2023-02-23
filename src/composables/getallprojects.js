@@ -24,7 +24,9 @@ export async function useGetAllProjects() {
       if (data) {
         all_projects.value = data;
         store.changeAllProjects(all_projects.value);
-        localStorage.setItem("allprojects", JSON.stringify(store.allprojects));
+        if (localStorage.getItem("allprojects") == null) {
+          localStorage.setItem("allprojects", JSON.stringify(store.allprojects));
+        }
       }
     } catch (error) {
       alert(error.message);

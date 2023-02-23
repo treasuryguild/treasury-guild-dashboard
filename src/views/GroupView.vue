@@ -20,39 +20,47 @@ let labels = [];
 let labelsData = [];
 let wallets = [];
 const group = route.params.group;
-let lastRefresh2 = 0
-let projectLabels = []
-let projectLabelsData = []
-let projectLabelsName = []
+let lastRefresh2 = 0;
+let projectLabels = [];
+let projectLabelsData = [];
 let chart = null;
 
 onMounted(async () => {
   lastRefresh2 = parseInt(localStorage.getItem("refreshtime2"))
     ? parseInt(localStorage.getItem("refreshtime2"))
     : 0;
-  projectLabels = JSON.parse(localStorage.getItem("projectlabels"))?JSON.parse(localStorage.getItem("projectlabels")):[];
-  projectLabelsData = JSON.parse(localStorage.getItem("projectlabelsdata"))?JSON.parse(localStorage.getItem("projectlabelsdata")):[];
-  projectLabelsName = localStorage.getItem("projectlabelsname")?localStorage.getItem("projectlabelsname"):"";
+  /*projectLabels = JSON.parse(localStorage.getItem("projectlabels"))
+    ? JSON.parse(localStorage.getItem("projectlabels"))
+    : [];
+  projectLabelsData = JSON.parse(localStorage.getItem("projectlabelsdata"))
+    ? JSON.parse(localStorage.getItem("projectlabelsdata"))
+    : [];*/
+  
   everyProject = JSON.parse(localStorage.getItem("allprojects"));
-  window.scrollTo(0, 0);
+  store.changeAllProjects(everyProject);
   store.changeGroup(group);
-  loadProjects();
-  if (projectLabels && projectLabelsName == group) {
+  for (let i in everyProject) {
+    if (everyProject[i].group_name == store.group) {
+      projectLabels = everyProject[i].stat_labels;
+      projectLabelsData = everyProject[i].stat_labels_data;
+    }
+  }
+  window.scrollTo(0, 0);
+  await loadProjects();
+  if (projectLabels) {
     await projectChart();
-    console.log("passed")
+    console.log("passed");
   } else {
     await stats();
     await projectChart();
   }
-  setTimeout(async function () {
-    if (parseInt(lastRefresh2) < parseInt(Date.now()) - 300000) {
-      localStorage.setItem("refreshtime2", Date.now());
-      lastRefresh2 = Date.now();
-      console.log("projectLabels", projectLabels, projectLabelsData, Date.now());
-      await stats();
-      await projectChart();
-    }
-  }, 1000);
+  if (parseInt(lastRefresh2) < parseInt(Date.now()) - 300000) {
+    localStorage.setItem("refreshtime2", Date.now());
+    lastRefresh2 = Date.now();
+    console.log("projectLabels", projectLabels, projectLabelsData, Date.now());
+    await stats();
+    await projectChart();
+  }
 });
 async function loadProjects() {
   wallets = [];
@@ -71,8 +79,8 @@ async function loadProjects() {
   console.log("Lets go", proposals.value);
 }
 async function stats() {
-  labels = []
-  labelsData = []
+  labels = [];
+  labelsData = [];
   const { all_stats } = await useGetAllStats(store.group);
   allStats.value = all_stats.value;
   for (let i in allStats.value) {
@@ -87,14 +95,32 @@ async function stats() {
       labelsData.push(allStats.value[i]);
     }
   }
-  localStorage.setItem("projectlabels", JSON.stringify(labels));
-  localStorage.setItem("projectlabelsdata", JSON.stringify(labelsData));
-  localStorage.setItem("projectlabelsname", store.group);
+  for (let i in everyProject) {
+    if (everyProject[i].group_name == store.group) {
+      everyProject[i].stat_labels = labels;
+      everyProject[i].stat_labels_data = labelsData;
+    }
+  }
+  localStorage.setItem("allprojects", JSON.stringify(everyProject));
+  //localStorage.setItem("projectlabels", JSON.stringify(labels));
+  //localStorage.setItem("projectlabelsdata", JSON.stringify(labelsData));
   console.log("all_stats.value", allStats.value, labels, labelsData);
 }
 async function projectChart() {
-  projectLabels = JSON.parse(localStorage.getItem("projectlabels"))?JSON.parse(localStorage.getItem("projectlabels")):[];
-  projectLabelsData = JSON.parse(localStorage.getItem("projectlabelsdata"))?JSON.parse(localStorage.getItem("projectlabelsdata")):[];
+  /*projectLabels = JSON.parse(localStorage.getItem("projectlabels"))
+    ? JSON.parse(localStorage.getItem("projectlabels"))
+    : [];
+  projectLabelsData = JSON.parse(localStorage.getItem("projectlabelsdata"))
+    ? JSON.parse(localStorage.getItem("projectlabelsdata"))
+    : [];*/
+  everyProject = JSON.parse(localStorage.getItem("allprojects"));
+  store.changeAllProjects(everyProject);
+  for (let i in everyProject) {
+    if (everyProject[i].group_name == store.group) {
+      projectLabels = everyProject[i].stat_labels;
+      projectLabelsData = everyProject[i].stat_labels_data;
+    }
+  }
   const label = projectLabels;
   const data = {
     labels: label,
@@ -148,7 +174,7 @@ async function projectChart() {
   }
 
   // Create a new chart instance
-  const ctx = document.getElementById('myChart');
+  const ctx = document.getElementById("myChart");
   chart = new Chart(ctx, config);
 }
 </script>
