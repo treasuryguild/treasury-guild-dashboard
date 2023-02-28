@@ -611,7 +611,7 @@ div {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #131212;
+  background-color: rgba(19, 18, 18, 1);
   transition: border-color 0.25s;
 }
 
@@ -640,7 +640,7 @@ div {
   background-color: rgb(58, 55, 51);
 }
 .cont {
-  background-color: rgba(58, 55, 51, 0.5);
+  background-color: rgba(58, 55, 51, 0);
   text-align: center;
   padding: 0.1em 0.1em;
 }
