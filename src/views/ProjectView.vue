@@ -627,7 +627,7 @@ div {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #131212;
+  background-color: rgba(19, 18, 18);
   transition: border-color 0.25s;
 }
 
@@ -640,14 +640,14 @@ div {
   background-color: rgb(58, 55, 51);
 }
 .cont {
-  background-color: rgb(58, 55, 51);
+  background-color: rgba(58, 55, 51, 0.5);
   text-align: center;
   padding: 0.1em 0.1em;
 }
 
 .minicont {
   padding: 0.1em 0.1em;
-  background-color: rgb(58, 55, 51);
+  background-color: rgba(58, 55, 51, 0.1);
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -657,7 +657,7 @@ div {
   margin-top: -0.5em;
   margin-right: -0.9em;
   margin-left: -0.9em;
-  background-color: rgb(58, 55, 51);
+  background-color: rgba(58, 55, 51, 0.1);
   flex-grow: 1;
   margin-bottom: -0.8em;
 }
@@ -667,7 +667,23 @@ div {
   max-width: 600px;
   max-height: 280px;
   margin-left: 0.9em;
+  margin-right: 0.9em;
   justify-content: space-around;
+}
+
+@media (max-width: 996px) {
+  #statschart {
+    max-width: 996px;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888;
 }
 
 #ministats {
