@@ -627,7 +627,7 @@ div {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: rgba(19, 18, 18);
+  background-color: rgb(18, 19, 19);
   transition: border-color 0.25s;
 }
 
@@ -638,6 +638,7 @@ div {
 #titlebuttons {
   margin-left: 1.1em;
   background-color: rgb(58, 55, 51);
+  color: aliceblue;
 }
 .cont {
   background-color: rgba(58, 55, 51, 0);
@@ -647,7 +648,7 @@ div {
 
 .minicont {
   padding: 0.1em 0.1em;
-  background-color: rgba(58, 55, 51, 0.1);
+  background-color: rgba(58, 55, 51, 0);
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -657,7 +658,7 @@ div {
   margin-top: -0.5em;
   margin-right: -0.9em;
   margin-left: -0.9em;
-  background-color: rgba(58, 55, 51, 0.1);
+  background-color: rgba(58, 55, 51, 0);
   flex-grow: 1;
   margin-bottom: -0.8em;
 }
