@@ -44,7 +44,7 @@ export async function useGetAllStatsPerWallet(groupname, projectid) {
     for (let i in all_projects.value[0].projects) {
       allProjectIds.value.push(all_projects.value[0].projects[i].project_id);
     }
-    console.log("Results", allProjectIds.value);
+    //console.log("Results", allProjectIds.value);
     try {
       loading.value = true;
       let { data, error, status } = await supabase
@@ -55,7 +55,7 @@ export async function useGetAllStatsPerWallet(groupname, projectid) {
       if (error && status !== 406) throw error;
       if (data) {
         all_txs.value = data;
-        console.log("Results2", all_txs.value);
+        //console.log("Results2", all_txs.value);
       }
     } catch (error) {
       alert(error.message);

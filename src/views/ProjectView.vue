@@ -106,22 +106,22 @@ onMounted(async () => {
     localStorage.setItem("refreshtime3", Date.now());
     lastRefresh3 = Date.now();
     localStorage.removeItem("allprojects");
-    console.log("projectDate", Date.now());
+    //console.log("projectDate", Date.now());
     await getGroups();
     await getProjectDetails();
   }
   //localStorage.removeItem("allprojects");
   everyProject = JSON.parse(localStorage.getItem("allprojects"));
   if (everyProject == null || everyProject.length == 0) {
-    console.log("Its null", everyProject)
+    //console.log("Its null", everyProject)
     localStorage.removeItem("allprojects");
     await getGroups();
     store.changeAllProjects(everyProject);
     await stats2();
     await getProjectDetails();
-    console.log("now its not", everyProject)
+    //console.log("now its not", everyProject)
   } else {
-    console.log("Its not null", everyProject)
+    //console.log("Its not null", everyProject)
   }
   store.changeAllProjects(everyProject);
   
@@ -149,12 +149,12 @@ onMounted(async () => {
   }
   if (projectLabels) {
     await projectChart();
-    console.log("passed");
+    //console.log("passed");
   } else {
     await stats();
     await projectChart();
   }
-  console.log("PView loading", txrows.value, header.value);
+  //console.log("PView loading", txrows.value, header.value);
   //await getProjectDetails();
   loading.value = false;
 });
@@ -198,7 +198,7 @@ async function stats2() {
   localStorage.setItem("allprojects", JSON.stringify(everyProject));
   //localStorage.setItem("projectlabels", JSON.stringify(labels));
   //localStorage.setItem("projectlabelsdata", JSON.stringify(labelsData));
-  console.log("all_stats.value", allStats2.value, labels, labelsData);
+  //console.log("all_stats.value", allStats2.value, labels, labelsData);
 }
 
 async function getProjectDetails() {
@@ -280,23 +280,23 @@ async function getProjectDetails() {
   contributorId.value = all_contributor_id.value;
   tokensR.value = all_tokens.value;
   amountsR.value = all_amounts.value;
-  console.log(
+  /*console.log(
     "test dist tokens",
     tokens.value,
     tokenAmounts.value,
     nfts.value,
     nftPicture.value
-  );
+  );*/
   totalPayouts.value = distId.value.length;
   totaltxs.value = txId.value.length;
   for (let k in all_transactionId.value) {
     txType.value[all_transactionId.value[k]] = all_taskType.value[k];
   }
-  console.log("txtypes", txType.value);
+  //console.log("txtypes", txType.value);
 
   for (let j in txTotalTokens.value) {
     for (let i in txTotalTokens.value[j]) {
-      console.log("test tokens", txTotalTokens.value[j][i]);
+      //console.log("test tokens", txTotalTokens.value[j][i]);
       if (!headerTokens.value.includes(txTotalTokens.value[j][i])) {
         headerTokens.value.push(txTotalTokens.value[j][i]);
         header.value.push(txTotalTokens.value[j][i].toUpperCase());
@@ -359,13 +359,13 @@ async function getProjectDetails() {
   totalIn.value = parseFloat(totalIn.value).toFixed(2);
   totalOut.value = parseFloat(totalOut.value).toFixed(2);
   txrows.value.sort((a, b) => new Date(a.dateSort) - new Date(b.dateSort));
-  console.log(
+  /*console.log(
     "Everything is fine, but is it",
     txrows.value,
     txTotalAmounts.value,
     txTotalTokens.value,
     headerTokens.value
-  );
+  );*/
   for (let i in everyProject) {
     if (everyProject[i].group_name == store.group) {
       for (let j in everyProject[i].projects) {
@@ -378,13 +378,13 @@ async function getProjectDetails() {
           everyProject[i].projects[j].total_out = totalOut.value;
           everyProject[i].projects[j].total_fees = totalFees.value;
           everyProject[i].projects[j].balance = lovelaceR.value;
-          console.log("Its alive", j);
+          //console.log("Its alive", j);
         }
       }
     }
   }
   localStorage.setItem("allprojects", JSON.stringify(everyProject));
-  console.log("everyProject", everyProject);
+  //console.log("everyProject", everyProject);
 }
 
 async function getSingleTransaction(txid) {
@@ -500,7 +500,7 @@ async function stats() {
     sortedObj[key] = allStats.value[key];
   }
   allStats.value = sortedObj;
-  console.log("allStats.value", allStats.value);
+  //console.log("allStats.value", allStats.value);
   for (let i in allStats.value) {
     if (
       i != "" &&
@@ -520,7 +520,7 @@ async function stats() {
         if (everyProject[i].projects[j].project_name == store.project) {
           everyProject[i].projects[j].stat_labels = labels;
           everyProject[i].projects[j].stat_labels_data = labelsData;
-          console.log("Its alive", j);
+          //console.log("Its alive", j);
         }
       }
     }
@@ -528,7 +528,7 @@ async function stats() {
   localStorage.setItem("allprojects", JSON.stringify(everyProject));
   //localStorage.setItem("projectlabels", JSON.stringify(labels));
   //localStorage.setItem("projectlabelsdata", JSON.stringify(labelsData));
-  console.log("all_stats.value", allStats.value, labels, labelsData);
+  //console.log("all_stats.value", allStats.value, labels, labelsData);
 }
 async function projectChart() {
   everyProject = JSON.parse(localStorage.getItem("allprojects"));
@@ -539,7 +539,7 @@ async function projectChart() {
         if (everyProject[i].projects[j].project_name == store.project) {
           projectLabels = everyProject[i].projects[j].stat_labels;
           projectLabelsData = everyProject[i].projects[j].stat_labels_data;
-          console.log("Its alive", j);
+          //console.log("Its alive", j);
         }
       }
     }
@@ -870,7 +870,7 @@ table th:nth-of-type(n + 2) {
   }
 }
 .loader {
-  background-color: #242424;
+  background-color: #2f4491;
   width: 48px;
   height: 48px;
   display: block;

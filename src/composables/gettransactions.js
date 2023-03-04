@@ -63,7 +63,7 @@ export async function useGetTransactions(project_id) {
           total_agix.value.push(data[j].total_agix)*/
           i++;
         }
-        console.log("total_tokens.value", total_tokens.value);
+        //console.log("total_tokens.value", total_tokens.value);
       }
     } catch (error) {
       alert(error.message);

@@ -37,7 +37,7 @@ export async function useGetProject() {
         website.value = data[0].website;
         project_type.value = data[0].project_type;
         budget_items.value = data[0].budget_items;
-        console.log("loading", project_type.value);
+        //console.log("loading", project_type.value);
       }
     } catch (error) {
       alert(error.message);

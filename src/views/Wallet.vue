@@ -18,7 +18,7 @@ async function submitValue() {
   const { lovelace, tokens, tokenAmounts, nfts, nftPicture } =
     await useGetWallet(inputValue.value);
   balance.value = lovelace.value;
-  console.log(tokens.value, tokenAmounts.value, nfts.value, nftPicture.value);
+  //console.log(tokens.value, tokenAmounts.value, nfts.value, nftPicture.value);
   picture.value = nftPicture.value;
   fTokens.value = tokens.value;
   fTokenAmounts.value = tokenAmounts.value;

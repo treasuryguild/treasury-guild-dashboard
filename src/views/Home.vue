@@ -24,7 +24,7 @@ onMounted(async () => {
   if (parseInt(lastRefresh) < parseInt(Date.now()) - 300000) {
     localStorage.setItem("refreshtime", Date.now());
     lastRefresh = Date.now();
-    console.log("Reloading", everyProject, Date.now());
+    //console.log("Reloading", everyProject, Date.now());
     localStorage.removeItem("allprojects");
     await getGroups();
   }
@@ -34,7 +34,7 @@ onMounted(async () => {
   if (everyProject == null  || everyProject.length == 0) {
     // all_projects == null
     localStorage.removeItem("allprojects");
-    console.log("all_projects == null -> Reloading")
+    //console.log("all_projects == null -> Reloading")
     await getGroups();
   } else {
     await getMenu();

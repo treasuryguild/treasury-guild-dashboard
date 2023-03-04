@@ -32,7 +32,7 @@ export async function useGetWallet(wallet) {
         );
       }
     }
-    console.log(lovelace.value);
+    //console.log(lovelace.value);
   }
 
   await getWallet();
