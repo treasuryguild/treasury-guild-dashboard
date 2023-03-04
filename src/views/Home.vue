@@ -31,8 +31,9 @@ onMounted(async () => {
   //localStorage.removeItem("allprojects");
   everyProject = JSON.parse(localStorage.getItem("allprojects"));
   store.changeAllProjects(everyProject);
-  if (everyProject == null) {
+  if (everyProject == null  || everyProject.length == 0) {
     // all_projects == null
+    localStorage.removeItem("allprojects");
     console.log("all_projects == null -> Reloading")
     await getGroups();
   } else {

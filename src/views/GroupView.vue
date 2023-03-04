@@ -62,6 +62,7 @@ onMounted(async () => {
     await projectChart();
   }
 });
+
 async function loadProjects() {
   wallets = [];
   console.log("everyProject", everyProject);

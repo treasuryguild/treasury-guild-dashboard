@@ -4,7 +4,9 @@ import { useRoute } from "vue-router";
 import { useStore } from "../store/index";
 import { supabase } from "../supabase";
 import { useGetWallet } from "../composables/getwallet";
+import { useGetAllStats } from "../composables/getallstats";
 import { useGetProject } from "../composables/getproject";
+import { useGetAllProjects } from "../composables/getallprojects";
 import { useGetTransactions } from "../composables/gettransactions";
 import { useGetContributions } from "../composables/getcontributions";
 import { useGetAllContributions } from "../composables/getallcontributions";
@@ -35,6 +37,7 @@ let projectLabels = [];
 let projectLabelsData = [];
 let projectId = "";
 const allStats = ref();
+const allStats2 = ref();
 
 const txrows = ref([]);
 const header = ref([]);
@@ -83,6 +86,7 @@ const tokensR = ref([]);
 const amountsR = ref([]);
 const agixR = ref([]);
 
+const allProjects = ref({});
 let everyProject = [];
 let lastRefresh3 = [];
 let tableRows = [];
@@ -92,14 +96,35 @@ const group = route.params.group;
 const project = route.params.project;
 
 onMounted(async () => {
+  loading.value = true;
+  store.changeGroup(group);
+  store.changeProject(project);
   lastRefresh3 = parseInt(localStorage.getItem("refreshtime3"))
     ? parseInt(localStorage.getItem("refreshtime3"))
     : 0;
-  loading.value = true;
+  if (parseInt(lastRefresh3) < parseInt(Date.now()) - 300000) {
+    localStorage.setItem("refreshtime3", Date.now());
+    lastRefresh3 = Date.now();
+    localStorage.removeItem("allprojects");
+    console.log("projectDate", Date.now());
+    await getGroups();
+    await getProjectDetails();
+  }
+  //localStorage.removeItem("allprojects");
   everyProject = JSON.parse(localStorage.getItem("allprojects"));
+  if (everyProject == null || everyProject.length == 0) {
+    console.log("Its null", everyProject)
+    localStorage.removeItem("allprojects");
+    await getGroups();
+    store.changeAllProjects(everyProject);
+    await stats2();
+    await getProjectDetails();
+    console.log("now its not", everyProject)
+  } else {
+    console.log("Its not null", everyProject)
+  }
   store.changeAllProjects(everyProject);
-  store.changeGroup(group);
-  store.changeProject(project);
+  
   for (let i in everyProject) {
     if (everyProject[i].group_name == store.group) {
       for (let j in everyProject[i].projects) {
@@ -131,14 +156,50 @@ onMounted(async () => {
   }
   console.log("PView loading", txrows.value, header.value);
   //await getProjectDetails();
-  if (parseInt(lastRefresh3) < parseInt(Date.now()) - 300000) {
-    localStorage.setItem("refreshtime3", Date.now());
-    lastRefresh3 = Date.now();
-    console.log("projectDate", Date.now());
-    await getProjectDetails();
-  }
   loading.value = false;
 });
+
+async function getGroups() {
+  const { all_projects } = await useGetAllProjects();
+  allProjects.value = all_projects.value;
+  everyProject = JSON.parse(localStorage.getItem("allprojects"));
+}
+async function stats2() {
+  labels = [];
+  labelsData = [];
+  const { all_stats } = await useGetAllStats(store.group);
+  allStats2.value = all_stats.value;
+  const sortedKeys = Object.keys(allStats2.value).sort();
+  const sortedObj = {};
+  for (let i = 0; i < sortedKeys.length; i++) {
+    const key = sortedKeys[i];
+    sortedObj[key] = allStats2.value[key];
+  }
+  allStats2.value = sortedObj;
+
+  for (let i in allStats2.value) {
+    if (
+      i != "" &&
+      i != "Incoming" &&
+      i != "Rewards Withdrawal" &&
+      i != "Staking" &&
+      i != "Internal transfer"
+    ) {
+      labels.push(i);
+      labelsData.push(allStats2.value[i]);
+    }
+  }
+  for (let i in everyProject) {
+    if (everyProject[i].group_name == store.group) {
+      everyProject[i].stat_labels = labels;
+      everyProject[i].stat_labels_data = labelsData;
+    }
+  }
+  localStorage.setItem("allprojects", JSON.stringify(everyProject));
+  //localStorage.setItem("projectlabels", JSON.stringify(labels));
+  //localStorage.setItem("projectlabelsdata", JSON.stringify(labelsData));
+  console.log("all_stats.value", allStats2.value, labels, labelsData);
+}
 
 async function getProjectDetails() {
   // still busy building and testing
