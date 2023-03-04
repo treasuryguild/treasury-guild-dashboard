@@ -26,19 +26,26 @@ let projectLabelsData = [];
 let chart = null;
 
 onMounted(async () => {
+  store.changeGroup(group);
   lastRefresh2 = parseInt(localStorage.getItem("refreshtime2"))
     ? parseInt(localStorage.getItem("refreshtime2"))
     : 0;
+  if (parseInt(lastRefresh2) < parseInt(Date.now()) - 300000) {
+    localStorage.setItem("refreshtime2", Date.now());
+    lastRefresh2 = Date.now();
+    console.log("projectLabels", projectLabels, projectLabelsData, Date.now());
+    await stats();
+    await projectChart();
+  }
   /*projectLabels = JSON.parse(localStorage.getItem("projectlabels"))
     ? JSON.parse(localStorage.getItem("projectlabels"))
     : [];
   projectLabelsData = JSON.parse(localStorage.getItem("projectlabelsdata"))
     ? JSON.parse(localStorage.getItem("projectlabelsdata"))
     : [];*/
-  
+
   everyProject = JSON.parse(localStorage.getItem("allprojects"));
   store.changeAllProjects(everyProject);
-  store.changeGroup(group);
   for (let i in everyProject) {
     if (everyProject[i].group_name == store.group) {
       projectLabels = everyProject[i].stat_labels;
@@ -51,13 +58,6 @@ onMounted(async () => {
     await projectChart();
     console.log("passed");
   } else {
-    await stats();
-    await projectChart();
-  }
-  if (parseInt(lastRefresh2) < parseInt(Date.now()) - 300000) {
-    localStorage.setItem("refreshtime2", Date.now());
-    lastRefresh2 = Date.now();
-    console.log("projectLabels", projectLabels, projectLabelsData, Date.now());
     await stats();
     await projectChart();
   }

@@ -536,7 +536,7 @@ async function projectChart() {
   }
 
   // Create a new chart instance
-  const ctx = document.getElementById("myChart");
+  const ctx = document.getElementById("myChart2");
   chart = new Chart(ctx, config);
 }
 </script>
@@ -555,15 +555,15 @@ async function projectChart() {
       </div>
       <div class="minicont">
         <div id="stats">
-            <div>Number of txs - {{ totaltxs }}</div>
-            <div>Total Disbursements - {{ totalPayouts }}</div>
-            <div>Total In - {{ totalIn }}</div>
-            <div>Total Out - {{ totalOut }}</div>
-            <div>Fees - {{ totalFees }}</div>
-            <div>Balance - {{ lovelaceR }}</div>
+            <div id="stat">Number of txs - {{ totaltxs }}</div>
+            <div id="stat">Total Disbursements - {{ totalPayouts }}</div>
+            <div id="stat">Total In - {{ totalIn }}</div>
+            <div id="stat">Total Out - {{ totalOut }}</div>
+            <div id="stat">Fees - {{ totalFees }}</div>
+            <div id="stat">Balance - {{ lovelaceR }}</div>
         </div>
         <div id="statschart">
-          <canvas id="myChart"></canvas>
+          <canvas id="myChart2"></canvas>
         </div>
       </div>
     </div>
@@ -663,6 +663,10 @@ div {
   margin-bottom: -0.8em;
 }
 
+#stat {
+  background-color: rgba(19, 18, 18, 1);
+}
+
 #statschart {
   flex-grow: 1;
   max-width: 600px;
@@ -670,6 +674,7 @@ div {
   margin-left: 0.9em;
   margin-right: 0.9em;
   justify-content: space-around;
+  background-color: rgba(19, 18, 18, 1);
 }
 
 @media (max-width: 996px) {

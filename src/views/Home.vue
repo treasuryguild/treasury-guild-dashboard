@@ -15,11 +15,19 @@ const allProjects = ref({});
 let everyProject = [];
 const store = useStore();
 let lastRefresh = 0;
+const mounted = ref(false);
 
 onMounted(async () => {
   lastRefresh = parseInt(localStorage.getItem("refreshtime"))
     ? parseInt(localStorage.getItem("refreshtime"))
     : 0;
+  if (parseInt(lastRefresh) < parseInt(Date.now()) - 300000) {
+    localStorage.setItem("refreshtime", Date.now());
+    lastRefresh = Date.now();
+    console.log("Reloading", everyProject, Date.now());
+    localStorage.removeItem("allprojects");
+    await getGroups();
+  }
   //localStorage.removeItem("allprojects");
   everyProject = JSON.parse(localStorage.getItem("allprojects"));
   store.changeAllProjects(everyProject);
@@ -30,13 +38,7 @@ onMounted(async () => {
   } else {
     await getMenu();
   }
-  if (parseInt(lastRefresh) < parseInt(Date.now()) - 300000) {
-    localStorage.setItem("refreshtime", Date.now());
-    lastRefresh = Date.now();
-    console.log("Reloading", everyProject, Date.now());
-    localStorage.removeItem("allprojects");
-    await getGroups();
-  }
+  mounted.value = true; 
 });
 
 async function getGroups() {
@@ -65,7 +67,7 @@ async function getMenu() {
 
 <template>
   <main>
-    <div class="cardcontainer">
+    <div v-if="mounted" class="cardcontainer">
       <RouterLink
         :to="`/${group}`"
         class="groups"
