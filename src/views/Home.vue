@@ -18,6 +18,7 @@ let lastRefresh = 0;
 const mounted = ref(false);
 
 onMounted(async () => {
+  mounted.value = false; 
   lastRefresh = parseInt(localStorage.getItem("refreshtime"))
     ? parseInt(localStorage.getItem("refreshtime"))
     : 0;

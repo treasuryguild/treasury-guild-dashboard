@@ -3,6 +3,7 @@ import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useStore } from "../store/index";
 import { useGetAllStats } from "../composables/getallstats";
+import { useGetAllProjects } from "../composables/getallprojects";
 import Chart from "chart.js/auto";
 import { Colors } from "chart.js";
 
@@ -11,6 +12,7 @@ Chart.register(Colors);
 const store = useStore();
 const route = useRoute();
 let everyProject = [];
+const allProjects = ref({});
 const allStats = ref();
 const projectNames = ref([]);
 const proposals = ref([]);
@@ -34,6 +36,7 @@ onMounted(async () => {
     localStorage.setItem("refreshtime2", Date.now());
     lastRefresh2 = Date.now();
     //console.log("projectLabels", projectLabels, projectLabelsData, Date.now());
+    await getGroups();
     await stats();
     await projectChart();
   }
@@ -45,6 +48,14 @@ onMounted(async () => {
     : [];*/
 
   everyProject = JSON.parse(localStorage.getItem("allprojects"));
+  if (everyProject == null || everyProject.length == 0) {
+    //console.log("Its null", everyProject)
+    localStorage.removeItem("allprojects");
+    await getGroups();
+    store.changeAllProjects(everyProject);
+    await stats();
+    //console.log("now its not", everyProject)
+  }
   store.changeAllProjects(everyProject);
   for (let i in everyProject) {
     if (everyProject[i].group_name == store.group) {
@@ -62,6 +73,12 @@ onMounted(async () => {
     await projectChart();
   }
 });
+
+async function getGroups() {
+  const { all_projects } = await useGetAllProjects();
+  allProjects.value = all_projects.value;
+  everyProject = JSON.parse(localStorage.getItem("allprojects"));
+}
 
 async function loadProjects() {
   wallets = [];
