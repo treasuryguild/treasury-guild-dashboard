@@ -358,7 +358,7 @@ async function getProjectDetails() {
   totalFees.value = parseFloat(totalFees.value).toFixed(2);
   totalIn.value = parseFloat(totalIn.value).toFixed(2);
   totalOut.value = parseFloat(totalOut.value).toFixed(2);
-  txrows.value.sort((a, b) => new Date(a.dateSort) - new Date(b.dateSort));
+  txrows.value.sort((a, b) => new Date(b.dateSort) - new Date(a.dateSort));
   /*console.log(
     "Everything is fine, but is it",
     txrows.value,
