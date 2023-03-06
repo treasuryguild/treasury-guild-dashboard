@@ -36,6 +36,7 @@ onMounted(async () => {
     localStorage.setItem("refreshtime2", Date.now());
     lastRefresh2 = Date.now();
     //console.log("projectLabels", projectLabels, projectLabelsData, Date.now());
+    localStorage.removeItem("allprojects");
     await getGroups();
     await stats();
     await projectChart();
