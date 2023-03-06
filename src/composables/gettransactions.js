@@ -27,7 +27,7 @@ export async function useGetTransactions(project_id) {
       let { data, error, status } = await supabase
         .from("transactions")
         .select(
-          `tx_id, transaction_id, transaction_date, exchange_rate, tx_json_url, recipients, fee, wallet_balance_after, total_ada, total_gmbl, total_agix`
+          `tx_id, transaction_id, transaction_date, exchange_rate, tx_json_url, recipients, fee, wallet_balance_after, total_ada, total_gmbl, total_agix, total_copi, total_ntx`
         )
         .eq("project_id", project_id);
 
@@ -57,6 +57,14 @@ export async function useGetTransactions(project_id) {
           if (data[j].total_agix > 0) {
             total_tokens.value[i].push("agix");
             total_amounts.value[i].push(data[j].total_agix.toFixed(2));
+          }
+          if (data[j].total_copi > 0) {
+            total_tokens.value[i].push("copi");
+            total_amounts.value[i].push(data[j].total_copi.toFixed(2));
+          }
+          if (data[j].total_ntx > 0) {
+            total_tokens.value[i].push("ntx");
+            total_amounts.value[i].push(data[j].total_ntx.toFixed(2));
           }
           /*total_ada.value.push(data[j].total_ada)
           total_gmbl.value.push(data[j].total_gmbl)
