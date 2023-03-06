@@ -637,7 +637,7 @@ async function projectChart() {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in txrows.reverse()" :key="row.id" :class="rowClasses(row)">
+            <tr v-for="row in txrows" :key="row.id" :class="rowClasses(row)">
               <td v-for="column in header" :key="column">
                 <template v-if="column === 'Link'">
                   <a v-bind:href="row[column]" target="_blank">Link</a>
