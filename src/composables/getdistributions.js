@@ -6,6 +6,7 @@ import { supabase } from "../supabase";
 export async function useGetDistributions(contribution_id) {
   const loading = ref(true);
 
+  const distributions = ref([]);
   const dist_id = ref([]);
   const contributor_id = ref([]);
   const tokens = ref([]);
@@ -22,12 +23,13 @@ export async function useGetDistributions(contribution_id) {
 
       let { data, error, status } = await supabase
         .from("distributions")
-        .select(`dist_id, contributor_id, ada, gmbl, agix`)
+        .select(`dist_id, contributor_id, contribution_id, ada, gmbl, agix`)
         .eq("contribution_id", contribution_id);
 
       if (error && status !== 406) throw error;
 
       if (data) {
+        distributions.value = data;
         let i = 0;
         for (let j in data) {
           tokens.value[i] = [];
@@ -61,5 +63,8 @@ export async function useGetDistributions(contribution_id) {
 
   await getDistributions();
 
-  return { dist_id, contributor_id, tokens, amounts };
+  return { 
+    //dist_id, contributor_id, tokens, amounts
+    distributions
+  };
 }

@@ -6,6 +6,7 @@ import { supabase } from "../supabase";
 export async function useGetContributions(transaction_id) {
   const loading = ref(true);
 
+  let contributions = ref([]);
   const contribution_id = ref([]);
   const task_creator = ref([]);
   const task_name = ref([]);
@@ -30,6 +31,7 @@ export async function useGetContributions(transaction_id) {
 
       if (data) {
         for (let j in data) {
+          contributions.value = data;
           contribution_id.value.push(data[j].contribution_id);
           task_creator.value.push(data[j].task_creator);
           task_name.value.push(data[j].task_name);
@@ -48,11 +50,6 @@ export async function useGetContributions(transaction_id) {
   await getContributions();
 
   return {
-    contribution_id,
-    task_creator,
-    task_name,
-    task_label,
-    task_description,
-    task_type,
+    contributions
   };
 }

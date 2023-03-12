@@ -71,7 +71,7 @@ document.addEventListener("mouseover", function () {
         ></menuitem
       >
       <menuitem
-        ><RouterLink to="/transactions" @click="onChange3()"
+        ><RouterLink to="/transactions/entertx" @click="onChange3()"
           >Transaction</RouterLink
         ></menuitem
       >

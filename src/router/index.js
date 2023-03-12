@@ -10,7 +10,7 @@ const routes = [
   { path: "/", component: Home },
   { path: "/dashboard", component: Dashboard },
   { path: "/wallet", component: Wallet },
-  { path: "/transactions", component: Transactions },
+  { path: "/transactions/:txid", component: Transactions },
   { path: "/:group", component: GroupView },
   { path: "/:group/:project", component: ProjectView },
 ];
