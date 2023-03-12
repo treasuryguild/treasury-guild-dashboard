@@ -40,9 +40,11 @@ async function getTx(inputvalue) {
   console.log("Get it", inputvalue);
   router.push({ path: `/transactions/${inputvalue}` });
   getTransaction(inputvalue);
+  selWallet.value = "All Wallets";
 }
 
 async function getTransaction(txId) {
+  loading.value = true;
   let transhash = "";
   if (txId == undefined) {
     console.log("get route path", tx);
@@ -86,7 +88,9 @@ async function getTransaction(txId) {
       }
     }
     contr.value[i].displayname = "";
-    contr.value[i].displayname = contr.value[i].task_description?contr.value[i].task_description:contr.value[i].task_name;
+    contr.value[i].displayname = contr.value[i].task_description
+      ? contr.value[i].task_description
+      : contr.value[i].task_name;
     for (let k in distr.value) {
       if (!wallets.value.includes(distr.value[k].contributor_id)) {
         wallets.value.push(distr.value[k].contributor_id);
@@ -95,16 +99,15 @@ async function getTransaction(txId) {
   }
   console.log("contr.value", contr.value, wallets.value);
   txstatus.value = true;
+  loading.value = false;
 }
 async function selectedWallet(wal) {
-  loading.value = true;
   selWallet.value = wal;
   if (selWallet.value == "All Wallets") {
     valid.value = true;
   }
-  
-  console.log("selWallet.value",selWallet.value)
-  loading.value = false;
+
+  console.log("selWallet.value", selWallet.value);
 }
 </script>
 <template>
@@ -121,46 +124,121 @@ async function selectedWallet(wal) {
       <button class="inputbutton" @click="getTx(inputValue)">GO</button>
     </div>
     <div class="box">
-      <div v-if="txstatus" class="transaction">
-      Transaction ditributions for {{ selWallet }}
+      <div v-if="txstatus" class="transaction" id="fadeIn">
+        Transaction ditributions for {{ selWallet }}
         <div v-for="cont in contr" :key="cont">
-          <div class="contr" v-if="cont.dist.some(obj => obj.wallet === selWallet)">
+          <div
+            class="contr"
+            v-if="cont.dist.some((obj) => obj.wallet === selWallet)"
+          >
             {{ cont.displayname }}
-          <div v-if="selWallet == 'All Wallets'" class="distr" v-for="ctr in cont.dist" :key="ctr">
-            <div>{{ ctr.wallet }}&nbsp;-&nbsp;</div>
-            <div class="tokens" v-for="tok in ctr.tokens" :key="tok">
-                {{ ctr.amounts[Object.keys(ctr.tokens).find(key => ctr.tokens[key] === tok)] }} {{ tok }},&nbsp;
+            <div
+              v-if="selWallet == 'All Wallets'"
+              class="distr"
+              v-for="ctr in cont.dist"
+              :key="ctr"
+            >
+              <div>{{ ctr.wallet }}&nbsp;-&nbsp;</div>
+              <div class="tokens" v-for="tok in ctr.tokens" :key="tok">
+                {{
+                  ctr.amounts[
+                    Object.keys(ctr.tokens).find(
+                      (key) => ctr.tokens[key] === tok
+                    )
+                  ]
+                }}
+                {{ tok }},&nbsp;
+              </div>
             </div>
-          </div>
-          <div v-if="selWallet != 'All Wallets'" class="distr" v-for="ctr in cont.dist" :key="ctr">
-            <div v-if="ctr.wallet == selWallet" >{{ ctr.wallet }}&nbsp;-&nbsp;</div>
-            <div v-if="ctr.wallet == selWallet" class="tokens" v-for="tok in ctr.tokens" :key="tok">
-                {{ ctr.amounts[Object.keys(ctr.tokens).find(key => ctr.tokens[key] === tok)] }} {{ tok }},&nbsp;
+            <div
+              v-if="selWallet != 'All Wallets'"
+              class="distr"
+              v-for="ctr in cont.dist"
+              :key="ctr"
+            >
+              <div v-if="ctr.wallet == selWallet">
+                {{ ctr.wallet }}&nbsp;-&nbsp;
+              </div>
+              <div
+                v-if="ctr.wallet == selWallet"
+                class="tokens"
+                v-for="tok in ctr.tokens"
+                :key="tok"
+              >
+                {{
+                  ctr.amounts[
+                    Object.keys(ctr.tokens).find(
+                      (key) => ctr.tokens[key] === tok
+                    )
+                  ]
+                }}
+                {{ tok }},&nbsp;
+              </div>
             </div>
-          </div>
           </div>
           <div class="contr" v-if="selWallet == 'All Wallets'">
             {{ cont.displayname }}
-          <div v-if="selWallet == 'All Wallets'" class="distr" v-for="ctr in cont.dist" :key="ctr">
-            <div>{{ ctr.wallet }}&nbsp;-&nbsp;</div>
-            <div class="tokens" v-for="tok in ctr.tokens" :key="tok">
-                {{ ctr.amounts[Object.keys(ctr.tokens).find(key => ctr.tokens[key] === tok)] }} {{ tok }},&nbsp;
+            <div
+              v-if="selWallet == 'All Wallets'"
+              class="distr"
+              v-for="ctr in cont.dist"
+              :key="ctr"
+            >
+              <div>{{ ctr.wallet }}&nbsp;-&nbsp;</div>
+              <div class="tokens" v-for="tok in ctr.tokens" :key="tok">
+                {{
+                  ctr.amounts[
+                    Object.keys(ctr.tokens).find(
+                      (key) => ctr.tokens[key] === tok
+                    )
+                  ]
+                }}
+                {{ tok }},&nbsp;
+              </div>
             </div>
-          </div>
-          <div v-if="selWallet != 'All Wallets'" class="distr" v-for="ctr in cont.dist" :key="ctr">
-            <div v-if="ctr.wallet == selWallet" >{{ ctr.wallet }}&nbsp;-&nbsp;</div>
-            <div v-if="ctr.wallet == selWallet" class="tokens" v-for="tok in ctr.tokens" :key="tok">
-                {{ ctr.amounts[Object.keys(ctr.tokens).find(key => ctr.tokens[key] === tok)] }} {{ tok }},&nbsp;
+            <div
+              v-if="selWallet != 'All Wallets'"
+              class="distr"
+              v-for="ctr in cont.dist"
+              :key="ctr"
+            >
+              <div v-if="ctr.wallet == selWallet">
+                {{ ctr.wallet }}&nbsp;-&nbsp;
+              </div>
+              <div
+                v-if="ctr.wallet == selWallet"
+                class="tokens"
+                v-for="tok in ctr.tokens"
+                :key="tok"
+              >
+                {{
+                  ctr.amounts[
+                    Object.keys(ctr.tokens).find(
+                      (key) => ctr.tokens[key] === tok
+                    )
+                  ]
+                }}
+                {{ tok }},&nbsp;
+              </div>
             </div>
-          </div>
           </div>
         </div>
       </div>
-      <div class="wallets">
+      <div v-if="txstatus" class="wallets" id="fadeIn">
         Select wallet to view distributions
-        <button class="wals" @click="selectedWallet('All Wallets')">All Wallets</button>
-        <button class="wals" v-for="wal in wallets" :key="wal" @click="selectedWallet(wal)">{{ wal }}</button>
+        <button class="wals" @click="selectedWallet('All Wallets')">
+          All Wallets
+        </button>
+        <button
+          class="wals"
+          v-for="wal in wallets"
+          :key="wal"
+          @click="selectedWallet(wal)"
+        >
+          {{ wal }}
+        </button>
       </div>
+      <div class="loading" v-if="loading">Loading...</div>
     </div>
   </div>
 </template>
@@ -170,6 +248,27 @@ async function selectedWallet(wal) {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+@keyframes fade-in-out {
+  0% {
+    opacity: 0;
+  } /* Start with 0% opacity */
+  50% {
+    opacity: 1;
+  } /* Fade in to 100% opacity */
+  100% {
+    opacity: 0;
+  } /* Fade out to 0% opacity */
+}
+
+/* Apply the animation to the text element */
+.loading {
+  width: 700px;
+  text-align: center;
+  margin: 1em;
+  font-size: 2.5em;
+  animation: fade-in-out 2s ease-in-out infinite; /* Use the defined animation */
 }
 .txinput {
   height: 2.5em;
@@ -206,5 +305,63 @@ async function selectedWallet(wal) {
   display: flex;
   flex-wrap: wrap;
   background-color: rgb(49, 48, 48);
+}
+
+#fadeIn {
+  margin-top: 25px;
+  -webkit-animation: fadein 2s; /* Safari, Chrome and Opera > 12.1 */
+  -moz-animation: fadein 2s; /* Firefox < 16 */
+  -ms-animation: fadein 2s; /* Internet Explorer */
+  -o-animation: fadein 2s; /* Opera < 12.1 */
+  animation: fadein 2s;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Firefox < 16 */
+@-moz-keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Safari, Chrome and Opera > 12.1 */
+@-webkit-keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Internet Explorer */
+@-ms-keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Opera < 12.1 */
+@-o-keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 </style>
