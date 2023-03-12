@@ -37,7 +37,7 @@ function getValue(name) {
 }
 
 async function getTx(inputvalue) {
-  console.log("Get it", inputvalue);
+  //console.log("Get it", inputvalue);
   router.push({ path: `/transactions/${inputvalue}` });
   getTransaction(inputvalue);
   selWallet.value = "All Wallets";
@@ -47,10 +47,10 @@ async function getTransaction(txId) {
   loading.value = true;
   let transhash = "";
   if (txId == undefined) {
-    console.log("get route path", tx);
+    //console.log("get route path", tx);
     transhash = tx;
   } else {
-    console.log("Getting tx", txId);
+    //console.log("Getting tx", txId);
     transhash = txId;
   }
   const { txhash } = await useGetTransaction(transhash);
@@ -61,17 +61,17 @@ async function getTransaction(txId) {
     txjsoncont.value = txid.value[0].tx_json;
   }
 
-  console.log("txid.value", txid.value[0].tx_id, txjsoncont.value);
+  //console.log("txid.value", txid.value[0].tx_id, txjsoncont.value);
   const { contributions } = await useGetContributions(txid.value[0].tx_id);
   contr.value = contributions.value;
   for (let i in contr.value) {
     const { distributions } = await useGetDistributions(
       contr.value[i].contribution_id
     );
-    console.log("distributions.value", distributions.value);
+    //console.log("distributions.value", distributions.value);
     distr.value = distributions.value;
     contr.value[i].dist = [];
-    console.log(distr.value);
+    //console.log(distr.value);
     //contr.value[i].dist = distr.value;
     for (let l in distr.value) {
       contr.value[i].dist[l] = {};
@@ -97,7 +97,7 @@ async function getTransaction(txId) {
       }
     }
   }
-  console.log("contr.value", contr.value, wallets.value);
+  //console.log("contr.value", contr.value, wallets.value);
   txstatus.value = true;
   loading.value = false;
 }
@@ -107,11 +107,11 @@ async function selectedWallet(wal) {
     valid.value = true;
   }
 
-  console.log("selWallet.value", selWallet.value);
+  //console.log("selWallet.value", selWallet.value);
 }
 </script>
 <template>
-  <div v-if="mounted" class="main">
+  <div class="main">
     <div>
       <input
         class="txinput"
@@ -123,7 +123,7 @@ async function selectedWallet(wal) {
       />
       <button class="inputbutton" @click="getTx(inputValue)">GO</button>
     </div>
-    <div class="box">
+    <div v-if="mounted" class="box">
       <div v-if="txstatus" class="transaction" id="fadeIn">
         Transaction ditributions for {{ selWallet }}
         <div v-for="cont in contr" :key="cont">
@@ -240,6 +240,7 @@ async function selectedWallet(wal) {
       </div>
       <div class="loading" v-if="loading">Loading...</div>
     </div>
+    <div v-if="!mounted" class="loading">Loading...</div>
   </div>
 </template>
 
