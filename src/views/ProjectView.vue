@@ -623,7 +623,7 @@ async function projectChart() {
       <div class="minicont">
         <div id="stats">
             <div id="stat">Number of txs - {{ totaltxs }}</div>
-            <div id="stat">Total Disbursements - {{ totalPayouts }}</div>
+            <div id="stat">Total Distributions - {{ totalPayouts }}</div>
             <div id="stat">Total In - {{ totalIn }}</div>
             <div id="stat">Total Out - {{ totalOut }}</div>
             <div id="stat">Fees - {{ totalFees }}</div>

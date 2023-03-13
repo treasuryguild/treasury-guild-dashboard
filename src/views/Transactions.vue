@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "../store/index";
 import { useGetTransaction } from "../composables/gettransaction";
@@ -15,19 +15,20 @@ const store = useStore();
 const route = useRoute();
 const router = useRouter();
 
-const tx = route.params.txid;
 const txstatus = ref();
+const transhash = ref("");
 const txid = ref("");
 const txjsoncont = ref([]);
 const inputValue = ref("");
 const contr = ref();
-const distr = ref();
 const wallets = ref([]);
 const selWallet = ref("");
 const projectId = ref("");
 const projectDetails = ref();
 const group = ref("");
 const project = ref("");
+
+const tx = route.params.txid;
 
 onMounted(async () => {
   mounted.value = false;
@@ -40,6 +41,12 @@ onMounted(async () => {
   mounted.value = true;
 });
 
+watch(() => route.params.txid, (newTx) => {
+      if (newTx !== tx) {
+        window.location.reload();
+      }
+    });
+
 function getValue(name) {
   return document.getElementById(name).value;
 }
@@ -47,21 +54,20 @@ function getValue(name) {
 async function getTx(inputvalue) {
   //console.log("Get it", inputvalue);
   router.push({ path: `/transactions/${inputvalue}` });
-  getTransaction(inputvalue);
+  //getTransaction(inputvalue);
   selWallet.value = "All Wallets";
 }
 
 async function getTransaction(txId) {
   loading.value = true;
-  let transhash = "";
   if (txId == undefined) {
     //console.log("get route path", tx);
-    transhash = tx;
+    transhash.value = tx;
   } else {
     //console.log("Getting tx", txId);
-    transhash = txId;
+    transhash.value = txId;
   }
-  const { txhash } = await useGetTransaction(transhash);
+  const { txhash } = await useGetTransaction(transhash.value);
   txid.value = txhash.value;
   if (txid.value[0].tx_json.mdVersion) {
     txjsoncont.value = txid.value[0].tx_json.contributions;
@@ -82,25 +88,18 @@ async function getTransaction(txId) {
   const { contributions } = await useGetContributions(txid.value[0].tx_id);
   contr.value = contributions.value;
   for (let i in contr.value) {
-    const { distributions } = await useGetDistributions(
-      contr.value[i].contribution_id
-    );
-    //console.log("distributions.value", distributions.value);
-    distr.value = distributions.value;
     contr.value[i].dist = [];
-    //console.log("distr",distr.value);
-    //contr.value[i].dist = distr.value;
-    for (let l in distr.value) {
+    for (let l in contr.value[i].distributions) {
       contr.value[i].dist[l] = {};
       contr.value[i].dist[l] = {};
       contr.value[i].dist[l].tokens = [];
       contr.value[i].dist[l].amounts = [];
       contr.value[i].dist[l].wallet = "";
-      for (let t in distr.value[l]) {
-        contr.value[i].dist[l].wallet = distr.value[l].contributor_id;
-        if (t != "dist_id" && t != "contributor_id" && t != "contribution_id" && distr.value[l][t] > 0) {
+      for (let t in contr.value[i].distributions[l]) {
+        contr.value[i].dist[l].wallet = contr.value[i].distributions[l].contributor_id;
+        if (t != "dist_id" && t != "contributor_id" && t != "contribution_id" && contr.value[i].distributions[l][t] > 0) {
           contr.value[i].dist[l].tokens.push(t);
-          contr.value[i].dist[l].amounts.push(distr.value[l][t]);
+          contr.value[i].dist[l].amounts.push(contr.value[i].distributions[l][t]);
         }
       }
     }
@@ -108,9 +107,9 @@ async function getTransaction(txId) {
     contr.value[i].displayname = contr.value[i].task_description
       ? contr.value[i].task_description
       : contr.value[i].task_name;
-    for (let k in distr.value) {
-      if (!wallets.value.includes(distr.value[k].contributor_id)) {
-        wallets.value.push(distr.value[k].contributor_id);
+    for (let k in contr.value[i].distributions) {
+      if (!wallets.value.includes(contr.value[i].distributions[k].contributor_id)) {
+        wallets.value.push(contr.value[i].distributions[k].contributor_id);
       }
     }
   }
@@ -123,13 +122,18 @@ async function selectedWallet(wal) {
   if (selWallet.value == "All Wallets") {
     valid.value = true;
   }
-
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: 'smooth'
+  });
   //console.log("selWallet.value", selWallet.value);
 }
 </script>
 <template>
   <div class="main">
     <div>
+      <p class="inputheading">Transaction ID - {{ transhash }}</p>
       <input
         class="txinput"
         type="text"
@@ -142,7 +146,7 @@ async function selectedWallet(wal) {
     </div>
     <div v-if="mounted" class="box">
       <div v-if="txstatus" class="transaction" id="fadeIn">
-        Distributions to <span id="spanwallet">{{ selWallet }}</span> in this transaction
+        Distributions made to <span id="spanwallet">&nbsp;{{ selWallet }}&nbsp;</span> in this transaction
         <div v-for="cont in contr" :key="cont">
           <div
             class="contr"
@@ -247,6 +251,7 @@ async function selectedWallet(wal) {
           All Wallets
         </button>
         <button
+          v-if="selWallet"
           class="wals"
           v-for="wal in wallets"
           :key="wal"
@@ -294,6 +299,11 @@ async function selectedWallet(wal) {
   margin: 2em;
   padding-left: 1em;
 }
+.inputheading {
+  margin-bottom: -2em;
+  margin-left: 2em;
+  font-size: 0.77em;
+}
 .transaction {
   max-width: 500px;
   min-width: 500px;
@@ -311,9 +321,11 @@ async function selectedWallet(wal) {
 }
 .wals {
   margin: 0.2em;
+  font-size: 0.85em;
 }
 #spanwallet {
   color:aqua;
+  font-size: 1.2em;
 }
 .contr {
   background-color: black;
