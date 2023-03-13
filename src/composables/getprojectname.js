@@ -1,27 +1,26 @@
 // mouse.js
 import { ref } from "vue";
-import { useStore } from "../store/index";
 import { supabase } from "../supabase";
 
 // by convention, composable function names start with "use"
-export async function useGetTransaction(txid) {
-  const store = useStore();
+export async function useGetProjectName(project_id) {
   const loading = ref(true);
 
-  const txhash = ref([]);
+  const project_details = ref("");
 
   async function getProjectDetails() {
-    // still busy building and testing
     try {
       loading.value = true;
+
       let { data, error, status } = await supabase
-        .from("transactions")
-        .select(`tx_id, tx_json, project_id`)
-        .eq("transaction_id", txid);
+        .from("projects")
+        .select(`project_name, group_id, groups(group_name)`)
+        .eq("project_id", project_id);
 
       if (error && status !== 406) throw error;
+
       if (data) {
-        txhash.value = data;
+        project_details.value = data[0];
       }
     } catch (error) {
       alert(error.message);
@@ -32,5 +31,5 @@ export async function useGetTransaction(txid) {
 
   await getProjectDetails();
 
-  return { txhash };
+  return { project_details };
 }

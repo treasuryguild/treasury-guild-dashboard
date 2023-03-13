@@ -23,7 +23,7 @@ export async function useGetDistributions(contribution_id) {
 
       let { data, error, status } = await supabase
         .from("distributions")
-        .select(`dist_id, contributor_id, contribution_id, ada, gmbl, agix`)
+        .select(`dist_id, contributor_id, contribution_id, ada, gmbl, agix, copi, ntx`)
         .eq("contribution_id", contribution_id);
 
       if (error && status !== 406) throw error;

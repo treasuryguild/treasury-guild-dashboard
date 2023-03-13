@@ -214,7 +214,8 @@ async function getProjectDetails() {
     "TxType",
     "ExchangeRate",
     "Recipients",
-    "Link",
+    "TxView",
+    "Metadata",
     "Fees",
     "Balance",
   ];
@@ -310,10 +311,12 @@ async function getProjectDetails() {
   for (let i in txId.value) {
     txrows.value[i] = {
       Txid: "",
+      TransactionId: "",
       Date: "",
       ExchangeRate: "",
       Recipients: "",
-      Link: "",
+      TxView: "",
+      Metadata: "",
       TxType: "",
       Fees: "",
       Balance: "",
@@ -336,6 +339,7 @@ async function getProjectDetails() {
     }
     totalFees.value = totalFees.value + parseFloat(feeR.value[i]) / 1000000;
     txrows.value[i].Txid = txId.value[i];
+    txrows.value[i].TransactionId = transactionId.value[i];
     txrows.value[i].Date = new Date(
       parseInt(transactionDate.value[i])
     ).toDateString();
@@ -346,7 +350,8 @@ async function getProjectDetails() {
       txType.value[txId.value[i]] == "Rewards Withdrawal"
         ? txType.value[txId.value[i]]
         : "";
-    txrows.value[i].Link = txJsonUrl.value[i];
+    txrows.value[i].TxView = transactionId.value[i];
+    txrows.value[i].Metadata = txJsonUrl.value[i];
     txrows.value[i].Fees = parseFloat(feeR.value[i]) / 1000000;
     txrows.value[i].Balance = parseFloat(walletBalanceAfter.value[i]).toFixed(
       2
@@ -455,7 +460,7 @@ async function downloadCSV() {
       "TxType",
       "ExchangeRate",
       "Recipients",
-      "Link",
+      "Metadata",
       "Fees",
       "Balance",
       ...headerTokens.value,
@@ -467,7 +472,8 @@ async function downloadCSV() {
       txrows.value[i].TxType,
       txrows.value[i].ExchangeRate,
       txrows.value[i].Recipients,
-      txrows.value[i].Link,
+      txrows.value[i].Metadata,
+      txrows.value[i].TxView,
       txrows.value[i].Fees,
       txrows.value[i].Balance,
       ...headerTokens.value.map(
@@ -639,10 +645,13 @@ async function projectChart() {
           <tbody>
             <tr v-for="row in txrows" :key="row.id" :class="rowClasses(row)">
               <td v-for="column in header" :key="column">
-                <template v-if="column === 'Link'">
-                  <a v-bind:href="row[column]" target="_blank">Link</a>
+                <template v-if="column === 'TxView'">
+                  <a><RouterLink :to="`/transactions/${row[column]}`">TxView</RouterLink></a>
                 </template>
-                <template v-else>
+                <template v-if="column === 'Metadata'">
+                  <a v-bind:href="row[column]" target="_blank">Metadata</a>
+                </template>
+                <template v-if="column != 'Metadata' && column != 'TxView'">
                   {{ row[column] }}
                 </template>
               </td>
@@ -650,8 +659,8 @@ async function projectChart() {
           </tbody>
         </table>
       </div>
-      <div>
-        <div class="buttons">
+      <div class="buttons">
+        <div>
           <button id="titlebuttons" @click="downloadCSV()">Export CSV</button>
           <button id="titlebuttons" @click="pageTop()">
             Scroll to top of the page
@@ -659,7 +668,7 @@ async function projectChart() {
         </div>
       </div>
     </div>
-    <div v-else class="loader"></div>
+    <div v-else class="loading">Loading...</div>
   </main>
 </template>
 
@@ -672,7 +681,6 @@ div {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: rgba(19, 18, 18, 1);
   transition: border-color 0.25s;
 }
 
@@ -681,10 +689,10 @@ div {
   justify-content: space-between;
   align-items: baseline;
   border-radius: 8px;
-  margin: 1.0em;
+  margin: 1.4em;
   margin-bottom: 0.6em;
   border: 1px solid transparent;
-  padding: 0.5em 1em;
+  padding: 0.1em 1em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
@@ -693,16 +701,17 @@ div {
 }
 
 .buttons {
-  margin: 0px;
+  margin-left: 0.9em;
   padding: 0em;
 }
 #titlebuttons {
   margin-left: 1.1em;
-  background-color: rgb(58, 55, 51);
+  background: rgb(23, 74, 193);
   color: aliceblue;
+  border-radius: 3px;
 }
 .cont {
-  background-color: rgba(58, 55, 51, 0);
+  margin-bottom: -1.6em;
   text-align: center;
   padding: 0.1em 0.1em;
 }
@@ -869,45 +878,24 @@ table th:nth-of-type(n + 2) {
     opacity: 1;
   }
 }
-.loader {
-  background-color: #2f4491;
-  width: 48px;
-  height: 48px;
-  display: block;
-  margin: 300px auto;
-  position: relative;
-  border: 3px solid #fff;
-  border-radius: 50%;
-  box-sizing: border-box;
-  animation: animloader 2s linear infinite;
-}
-.loader::after {
-  content: "";
-  box-sizing: border-box;
-  width: 6px;
-  height: 24px;
-  background: #fff;
-  transform: rotate(-45deg);
-  position: absolute;
-  bottom: -20px;
-  left: 46px;
+@keyframes fade-in-out {
+  0% {
+    opacity: 0;
+  } /* Start with 0% opacity */
+  50% {
+    opacity: 1;
+  } /* Fade in to 100% opacity */
+  100% {
+    opacity: 0;
+  } /* Fade out to 0% opacity */
 }
 
-@keyframes animloader {
-  0% {
-    transform: translate(-10px, -10px);
-  }
-  25% {
-    transform: translate(-10px, 10px);
-  }
-  50% {
-    transform: translate(10px, 10px);
-  }
-  75% {
-    transform: translate(10px, -10px);
-  }
-  100% {
-    transform: translate(-10px, -10px);
-  }
+/* Apply the animation to the text element */
+.loading {
+  background-color: none;
+  text-align: center;
+  margin: 1em;
+  font-size: 2.5em;
+  animation: fade-in-out 2s ease-in-out infinite; /* Use the defined animation */
 }
 </style>

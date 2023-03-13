@@ -70,6 +70,11 @@ document.addEventListener("mouseover", function () {
           >Back to {{ store.group }}</RouterLink
         ></menuitem
       >
+      <menuitem v-if="route.path.startsWith(`/transactions/`)"
+        ><RouterLink :to="`/${store.group}/${store.project}`"
+          >View all {{ store.project }} transactions</RouterLink
+        ></menuitem
+      >
       <menuitem
         ><RouterLink to="/transactions/entertx" @click="onChange3()"
           >Transaction</RouterLink

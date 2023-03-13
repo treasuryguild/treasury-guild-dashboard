@@ -5,12 +5,16 @@ import { useStore } from "../store/index";
 import { useGetTransaction } from "../composables/gettransaction";
 import { useGetContributions } from "../composables/getcontributions";
 import { useGetDistributions } from "../composables/getdistributions";
+import { useGetProjectName } from "../composables/getprojectname";
 
 const mounted = ref(false);
 const loading = ref(false);
 const valid = ref(false);
+
+const store = useStore();
 const route = useRoute();
 const router = useRouter();
+
 const tx = route.params.txid;
 const txstatus = ref();
 const txid = ref("");
@@ -20,6 +24,10 @@ const contr = ref();
 const distr = ref();
 const wallets = ref([]);
 const selWallet = ref("");
+const projectId = ref("");
+const projectDetails = ref();
+const group = ref("");
+const project = ref("");
 
 onMounted(async () => {
   mounted.value = false;
@@ -61,6 +69,15 @@ async function getTransaction(txId) {
     txjsoncont.value = txid.value[0].tx_json;
   }
 
+  projectId.value = txjsoncont.value = txid.value[0].project_id;
+  const { project_details } = await useGetProjectName(projectId.value);
+  projectDetails.value = project_details.value;
+  group.value = projectDetails.value.groups.group_name;
+  project.value = projectDetails.value.project_name;
+  store.changeGroup(group.value);
+  store.changeProject(project.value);
+  //console.log("projectDetails", group.value, project.value, projectDetails.value);
+
   //console.log("txid.value", txid.value[0].tx_id, txjsoncont.value);
   const { contributions } = await useGetContributions(txid.value[0].tx_id);
   contr.value = contributions.value;
@@ -71,7 +88,7 @@ async function getTransaction(txId) {
     //console.log("distributions.value", distributions.value);
     distr.value = distributions.value;
     contr.value[i].dist = [];
-    //console.log(distr.value);
+    //console.log("distr",distr.value);
     //contr.value[i].dist = distr.value;
     for (let l in distr.value) {
       contr.value[i].dist[l] = {};
@@ -81,7 +98,7 @@ async function getTransaction(txId) {
       contr.value[i].dist[l].wallet = "";
       for (let t in distr.value[l]) {
         contr.value[i].dist[l].wallet = distr.value[l].contributor_id;
-        if (t != "dist_id" && t != "contributor_id" && t != "contribution_id") {
+        if (t != "dist_id" && t != "contributor_id" && t != "contribution_id" && distr.value[l][t] > 0) {
           contr.value[i].dist[l].tokens.push(t);
           contr.value[i].dist[l].amounts.push(distr.value[l][t]);
         }
@@ -125,7 +142,7 @@ async function selectedWallet(wal) {
     </div>
     <div v-if="mounted" class="box">
       <div v-if="txstatus" class="transaction" id="fadeIn">
-        Transaction ditributions for {{ selWallet }}
+        Distributions to <span id="spanwallet">{{ selWallet }}</span> in this transaction
         <div v-for="cont in contr" :key="cont">
           <div
             class="contr"
@@ -294,6 +311,9 @@ async function selectedWallet(wal) {
 }
 .wals {
   margin: 0.2em;
+}
+#spanwallet {
+  color:aqua;
 }
 .contr {
   background-color: black;
