@@ -27,9 +27,21 @@ onMounted(() => {
     <ProjectUpdater />
   </Suspense> -->
   </div>
+  <footer>
+    <a
+      class="tribute"
+      href="https://gimbalabs.com/dandelion/endpoints/postgrest-api"
+      title="postgrest-api"
+      target="_blank"
+      >Powered by Gimbalabs Dandelion postgrest-api</a
+    >
+  </footer>
 </template>
 
 <style scoped>
+.tribute {
+  font-size: 10px;
+}
 .logo {
   height: 5em;
   padding: 0.2em;
