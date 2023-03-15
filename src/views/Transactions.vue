@@ -23,6 +23,7 @@ const inputValue = ref("");
 const contr = ref();
 const wallets = ref([]);
 const selWallet = ref("");
+const totalPayment = ref({});
 const projectId = ref("");
 const projectDetails = ref();
 const group = ref("");
@@ -41,11 +42,14 @@ onMounted(async () => {
   mounted.value = true;
 });
 
-watch(() => route.params.txid, (newTx) => {
-      if (newTx !== tx) {
-        window.location.reload();
-      }
-    });
+watch(
+  () => route.params.txid,
+  (newTx) => {
+    if (newTx !== tx) {
+      window.location.reload();
+    }
+  }
+);
 
 function getValue(name) {
   return document.getElementById(name).value;
@@ -96,10 +100,19 @@ async function getTransaction(txId) {
       contr.value[i].dist[l].amounts = [];
       contr.value[i].dist[l].wallet = "";
       for (let t in contr.value[i].distributions[l]) {
-        contr.value[i].dist[l].wallet = contr.value[i].distributions[l].contributor_id;
-        if (t != "dist_id" && t != "contributor_id" && t != "contribution_id" && contr.value[i].distributions[l][t] > 0) {
+        contr.value[i].dist[l].wallet =
+          contr.value[i].distributions[l].contributor_id;
+        if (
+          t != "dist_id" &&
+          t != "contributor_id" &&
+          t != "contribution_id" &&
+          contr.value[i].distributions[l][t] > 0
+        ) {
+          let x = contr.value[i].distributions[l][t];
           contr.value[i].dist[l].tokens.push(t);
-          contr.value[i].dist[l].amounts.push(contr.value[i].distributions[l][t]);
+          contr.value[i].dist[l].amounts.push(
+            parseFloat(x).toFixed(2)
+          );
         }
       }
     }
@@ -108,7 +121,9 @@ async function getTransaction(txId) {
       ? contr.value[i].task_description
       : contr.value[i].task_name;
     for (let k in contr.value[i].distributions) {
-      if (!wallets.value.includes(contr.value[i].distributions[k].contributor_id)) {
+      if (
+        !wallets.value.includes(contr.value[i].distributions[k].contributor_id)
+      ) {
         wallets.value.push(contr.value[i].distributions[k].contributor_id);
       }
     }
@@ -118,6 +133,11 @@ async function getTransaction(txId) {
   loading.value = false;
 }
 async function selectedWallet(wal) {
+  let finalPayment = {};
+  let totalPayments = {
+    tokens: [],
+    amounts: [],
+  };
   selWallet.value = wal;
   if (selWallet.value == "All Wallets") {
     valid.value = true;
@@ -125,8 +145,38 @@ async function selectedWallet(wal) {
   window.scrollTo({
     top: 0,
     left: 0,
-    behavior: 'smooth'
+    behavior: "smooth",
   });
+
+  for (let i in contr.value) {
+    for (let j in contr.value[i].distributions) {
+      if (contr.value[i].distributions[j].contributor_id == wal) {
+        //finalPayment.push(contr.value[i].distributions[j]);
+        for (let t in contr.value[i].distributions[j]) {
+          if (
+            t != "dist_id" &&
+            t != "contributor_id" &&
+            t != "contribution_id" &&
+            contr.value[i].distributions[j][t] > 0
+          ) {
+            finalPayment[t] = 0;
+            totalPayments.tokens.push(t);
+            totalPayments.amounts.push(contr.value[i].distributions[j][t]);
+          }
+        }
+      }
+    }
+  }
+  for (let k in finalPayment) {
+    for (let m in totalPayments.tokens) {
+      if (totalPayments.tokens[m] == k) {
+        finalPayment[k] = finalPayment[k] + totalPayments.amounts[m];
+      }
+    }
+    finalPayment[k] = finalPayment[k].toFixed(2);
+  }
+  totalPayment.value = finalPayment;
+  console.log("totalPayment", totalPayment.value);
   //console.log("selWallet.value", selWallet.value);
 }
 </script>
@@ -146,7 +196,18 @@ async function selectedWallet(wal) {
     </div>
     <div v-if="mounted" class="box">
       <div v-if="txstatus" class="transaction" id="fadeIn">
-        Distributions made to <span id="spanwallet">&nbsp;{{ selWallet }}&nbsp;</span> in this transaction
+       <div class="totalbox">
+        <div>
+          Distributions made to
+          <span id="spanwallet">&nbsp;{{ selWallet }}&nbsp;</span> in this
+          transaction
+        </div>
+        <div v-if="selWallet != 'All Wallets'">
+          <div class="totalamount">Total - 
+            <span v-for="pay in totalPayment" :key="pay">{{ pay }} {{ Object.keys(totalPayment).find(key => totalPayment[key] === pay) }},&nbsp;</span>
+          </div>
+        </div>
+        </div>
         <div v-for="cont in contr" :key="cont">
           <div
             class="contr"
@@ -272,7 +333,15 @@ async function selectedWallet(wal) {
   flex-wrap: wrap;
   justify-content: center;
 }
-
+.totalbox {
+  border-radius: 5px;
+  background-color: black;
+  border: solid 0.2px;
+  padding: 0.2em;
+}
+.totalamount {
+  background-color: rgb(32, 51, 61);
+}
 @keyframes fade-in-out {
   0% {
     opacity: 0;
@@ -324,20 +393,19 @@ async function selectedWallet(wal) {
   font-size: 0.85em;
 }
 #spanwallet {
-  color:aqua;
+  color: aqua;
   font-size: 1.2em;
 }
 .contr {
   background-color: black;
-  border: solid 0.2px;
   border-radius: 5px;
   margin: 0.5em;
-  padding: 0.5em;
+  padding: 0.2em;
 }
 .distr {
   display: flex;
   flex-wrap: wrap;
-  background-color: rgb(49, 48, 48);
+  background-color: rgb(32, 51, 61);
 }
 
 #fadeIn {
