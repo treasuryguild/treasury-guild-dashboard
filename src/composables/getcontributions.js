@@ -23,7 +23,7 @@ export async function useGetContributions(transaction_id) {
       let { data, error, status } = await supabase
         .from("contributions")
         .select(
-          `contribution_id, task_creator, task_name, task_label, task_description, task_type, distributions(dist_id, contributor_id, contribution_id, ada, gmbl, agix, copi, ntx)`
+          `contribution_id, task_creator, task_name, task_label, task_description, task_type, distributions(dist_id, contributor_id, contribution_id, ada, gmbl, agix, copi, ntx, djed)`
         )
         .eq("tx_id", transaction_id);
 
