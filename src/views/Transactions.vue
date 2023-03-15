@@ -340,7 +340,7 @@ async function selectedWallet(wal) {
   padding: 0.2em;
 }
 .totalamount {
-  background-color: rgb(32, 51, 61);
+  background-color: rgb(24, 41, 50);
 }
 @keyframes fade-in-out {
   0% {
@@ -405,7 +405,7 @@ async function selectedWallet(wal) {
 .distr {
   display: flex;
   flex-wrap: wrap;
-  background-color: rgb(32, 51, 61);
+  background-color: rgb(24, 41, 50);
 }
 
 #fadeIn {
