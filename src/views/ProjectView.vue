@@ -642,7 +642,7 @@ async function projectChart() {
               <th v-for="column in header" :key="column">{{ column }}</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="tbody">
             <tr v-for="row in txrows" :key="row.id" :class="rowClasses(row)">
               <td v-for="column in header" :key="column">
                 <template v-if="column === 'TxView'">
@@ -706,6 +706,7 @@ div {
 }
 #titlebuttons {
   margin-left: 1.1em;
+  margin-bottom: 0em;
   background: rgb(23, 74, 193);
   color: aliceblue;
   border-radius: 3px;
@@ -713,7 +714,11 @@ div {
 .cont {
   margin-bottom: -1.6em;
   text-align: center;
-  padding: 0.1em 0.1em;
+}
+@media (max-width: 900px) {
+  #titlebuttons {
+    margin-bottom: 0.5em;
+  }
 }
 
 .minicont {
@@ -790,16 +795,19 @@ th {
 
 tr {
   text-align: center;
+  font-size: 0.95em;
 }
 
 table td:nth-of-type(1) {
   text-align: left;
+  min-width: 20px;
 }
 table th:nth-of-type(1) {
   text-align: left;
+  min-width: 128px;
 }
 
-table td:nth-of-type(n + 5) {
+table td:nth-of-type(n + 5) { /* Columns after 5 are text aligned right*/ 
   text-align: right;
 }
 table th:nth-of-type(n + 5) {
@@ -807,11 +815,11 @@ table th:nth-of-type(n + 5) {
 }
 
 table td:nth-of-type(n + 2) {
-  padding-right: 20px;
+  padding-right: 10px;
 }
 
 table th:nth-of-type(n + 2) {
-  padding-right: 20px;
+  padding-right: 10px;
 }
 
 .incoming-row {

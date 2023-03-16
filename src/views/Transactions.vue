@@ -374,8 +374,6 @@ async function selectedWallet(wal) {
   font-size: 0.77em;
 }
 .transaction {
-  max-width: 500px;
-  min-width: 500px;
   margin: 2em;
 }
 .box {
@@ -401,6 +399,17 @@ async function selectedWallet(wal) {
   border-radius: 5px;
   margin: 0.5em;
   padding: 0.2em;
+  border: solid 0.2px;
+  border-color: rgb(104, 128, 145);
+  max-width: 500px;
+}
+@media (max-width: 726px) {
+  .contr {
+    max-width: none;
+  }
+  .txinput {
+    width: 20em;
+  }
 }
 .distr {
   display: flex;
