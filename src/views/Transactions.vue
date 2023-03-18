@@ -204,7 +204,7 @@ async function selectedWallet(wal) {
         </div>
         <div v-if="selWallet != 'All Wallets'">
           <div class="totalamount">Total - 
-            <span v-for="pay in totalPayment" :key="pay">{{ pay }} {{ Object.keys(totalPayment).find(key => totalPayment[key] === pay) }},&nbsp;</span>
+            <span v-for="tok in Object.keys(totalPayment)" :key="tok">{{ totalPayment[tok] }} {{ tok }},&nbsp;</span>
           </div>
         </div>
         </div>
