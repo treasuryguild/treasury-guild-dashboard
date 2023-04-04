@@ -15,7 +15,6 @@ export async function useGetTransactions(project_id) {
   const total_amounts = ref([]);
   const fee = ref([]);
   const wallet_balance_after = ref([]);
-  const total_agix = ref([]);
   const recipients = ref([]);
 
   async function getTransactions() {
@@ -27,7 +26,7 @@ export async function useGetTransactions(project_id) {
       let { data, error, status } = await supabase
         .from("transactions")
         .select(
-          `tx_id, transaction_id, transaction_date, exchange_rate, tx_json_url, recipients, fee, wallet_balance_after, total_ada, total_gmbl, total_agix, total_copi, total_ntx, total_djed`
+          `tx_id, transaction_id, transaction_date, exchange_rate, tx_json_url, recipients, fee, wallet_balance_after, total_tokens, total_amounts`
         )
         .eq("project_id", project_id);
 
@@ -36,8 +35,6 @@ export async function useGetTransactions(project_id) {
       if (data) {
         let i = 0;
         for (let j in data) {
-          total_tokens.value[i] = [];
-          total_amounts.value[i] = [];
           tx_id.value.push(data[j].tx_id);
           transaction_id.value.push(data[j].transaction_id);
           transaction_date.value.push(data[j].transaction_date);
@@ -46,36 +43,10 @@ export async function useGetTransactions(project_id) {
           fee.value.push(data[j].fee);
           wallet_balance_after.value.push(data[j].wallet_balance_after);
           tx_json_url.value.push(data[j].tx_json_url);
-          if (data[j].total_ada >= 0) {
-            total_tokens.value[i].push("ada");
-            total_amounts.value[i].push(data[j].total_ada.toFixed(2));
-          }
-          if (data[j].total_gmbl > 0) {
-            total_tokens.value[i].push("gmbl");
-            total_amounts.value[i].push(data[j].total_gmbl.toFixed(2));
-          }
-          if (data[j].total_agix > 0) {
-            total_tokens.value[i].push("agix");
-            total_amounts.value[i].push(data[j].total_agix.toFixed(2));
-          }
-          if (data[j].total_copi > 0) {
-            total_tokens.value[i].push("copi");
-            total_amounts.value[i].push(data[j].total_copi.toFixed(2));
-          }
-          if (data[j].total_ntx > 0) {
-            total_tokens.value[i].push("ntx");
-            total_amounts.value[i].push(data[j].total_ntx.toFixed(2));
-          }
-          if (data[j].total_djed > 0) {
-            total_tokens.value[i].push("djed");
-            total_amounts.value[i].push(data[j].total_djed.toFixed(2));
-          }
-          /*total_ada.value.push(data[j].total_ada)
-          total_gmbl.value.push(data[j].total_gmbl)
-          total_agix.value.push(data[j].total_agix)*/
-          i++;
+          total_tokens.value[j] = data[j].total_tokens;
+          total_amounts.value[j] = data[j].total_amounts;
         }
-        //console.log("total_tokens.value", total_tokens.value);
+        console.log("total_tokens.value", total_tokens.value, total_amounts.value);
       }
     } catch (error) {
       alert(error.message);

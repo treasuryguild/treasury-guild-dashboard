@@ -91,6 +91,7 @@ async function getTransaction(txId) {
   //console.log("txid.value", txid.value[0].tx_id, txjsoncont.value);
   const { contributions } = await useGetContributions(txid.value[0].tx_id);
   contr.value = contributions.value;
+  console.log("contr.value", contr.value);
   for (let i in contr.value) {
     contr.value[i].dist = [];
     for (let l in contr.value[i].distributions) {
@@ -102,17 +103,12 @@ async function getTransaction(txId) {
       for (let t in contr.value[i].distributions[l]) {
         contr.value[i].dist[l].wallet =
           contr.value[i].distributions[l].contributor_id;
-        if (
-          t != "dist_id" &&
-          t != "contributor_id" &&
-          t != "contribution_id" &&
-          contr.value[i].distributions[l][t] > 0
-        ) {
+        if (t == "tokens") {
           let x = contr.value[i].distributions[l][t];
-          contr.value[i].dist[l].tokens.push(t);
-          contr.value[i].dist[l].amounts.push(
-            parseFloat(x).toFixed(2)
-          );
+          contr.value[i].dist[l].tokens = x;
+        } else if (t == "amounts") {
+          let x = contr.value[i].distributions[l][t];
+          contr.value[i].dist[l].amounts = x;
         }
       }
     }
@@ -153,15 +149,12 @@ async function selectedWallet(wal) {
       if (contr.value[i].distributions[j].contributor_id == wal) {
         //finalPayment.push(contr.value[i].distributions[j]);
         for (let t in contr.value[i].distributions[j]) {
-          if (
-            t != "dist_id" &&
-            t != "contributor_id" &&
-            t != "contribution_id" &&
-            contr.value[i].distributions[j][t] > 0
-          ) {
-            finalPayment[t] = 0;
-            totalPayments.tokens.push(t);
-            totalPayments.amounts.push(contr.value[i].distributions[j][t]);
+          if (t == "tokens") {
+            let x = contr.value[i].distributions[j][t];
+            contr.value[i].dist[j].tokens = x;
+          } else if (t == "amounts") {
+            let x = contr.value[i].distributions[j][t];
+            contr.value[i].dist[j].amounts = x;
           }
         }
       }
@@ -176,7 +169,7 @@ async function selectedWallet(wal) {
     finalPayment[k] = finalPayment[k].toFixed(2);
   }
   totalPayment.value = finalPayment;
-  console.log("totalPayment", totalPayment.value);
+  //console.log("totalPayment", totalPayment.value);
   //console.log("selWallet.value", selWallet.value);
 }
 </script>
@@ -196,17 +189,20 @@ async function selectedWallet(wal) {
     </div>
     <div v-if="mounted" class="box">
       <div v-if="txstatus" class="transaction" id="fadeIn">
-       <div class="totalbox">
-        <div>
-          Distributions made to
-          <span id="spanwallet">&nbsp;{{ selWallet }}&nbsp;</span> in this
-          transaction
-        </div>
-        <div v-if="selWallet != 'All Wallets'">
-          <div class="totalamount">Total - 
-            <span v-for="tok in Object.keys(totalPayment)" :key="tok">{{ totalPayment[tok] }} {{ tok }},&nbsp;</span>
+        <div class="totalbox">
+          <div>
+            Distributions made to
+            <span id="spanwallet">&nbsp;{{ selWallet }}&nbsp;</span> in this
+            transaction
           </div>
-        </div>
+          <div v-if="selWallet != 'All Wallets'">
+            <div class="totalamount">
+              Total -
+              <span v-for="tok in Object.keys(totalPayment)" :key="tok"
+                >{{ totalPayment[tok] }} {{ tok }},&nbsp;</span
+              >
+            </div>
+          </div>
         </div>
         <div v-for="cont in contr" :key="cont">
           <div

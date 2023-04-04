@@ -20,7 +20,7 @@ const loadGroup = ref(false);
 //const { projects, projectData, projectNames } = await useGetAllProjects()
 onMounted(() => {
   setTimeout(function () {
-    console.log("Navbar params", store.group);
+    //console.log("Navbar params", store.group);
   }, 2000);
   //
 });
