@@ -4,7 +4,6 @@ import { useRoute, useRouter } from "vue-router";
 import { useStore } from "../store/index";
 import { useGetTransaction } from "../composables/gettransaction";
 import { useGetContributions } from "../composables/getcontributions";
-import { useGetDistributions } from "../composables/getdistributions";
 import { useGetProjectName } from "../composables/getprojectname";
 
 const mounted = ref(false);
@@ -50,10 +49,6 @@ watch(
     }
   }
 );
-
-function getValue(name) {
-  return document.getElementById(name).value;
-}
 
 async function getTx(inputvalue) {
   //console.log("Get it", inputvalue);
@@ -147,14 +142,24 @@ async function selectedWallet(wal) {
   for (let i in contr.value) {
     for (let j in contr.value[i].distributions) {
       if (contr.value[i].distributions[j].contributor_id == wal) {
-        //finalPayment.push(contr.value[i].distributions[j]);
         for (let t in contr.value[i].distributions[j]) {
           if (t == "tokens") {
             let x = contr.value[i].distributions[j][t];
             contr.value[i].dist[j].tokens = x;
+            for (let f = 0; f < x.length; f++) {
+              const value = x[f];
+              finalPayment[value] = 0;
+              // Add the value to the aggregated array
+              totalPayments.tokens.push(value);
+            }
           } else if (t == "amounts") {
             let x = contr.value[i].distributions[j][t];
             contr.value[i].dist[j].amounts = x;
+            for (let y = 0; y < x.length; y++) {
+              const value = x[y];
+              // Add the value to the aggregated array
+              totalPayments.amounts.push(value);
+            }
           }
         }
       }

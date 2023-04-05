@@ -1,11 +1,9 @@
 // mouse.js
 import { ref } from "vue";
-import { useStore } from "../store/index";
 import { supabase } from "../supabase";
 
 // by convention, composable function names start with "use"
 export async function useGetTransaction(txid) {
-  const store = useStore();
   const loading = ref(true);
 
   const txhash = ref([]);
