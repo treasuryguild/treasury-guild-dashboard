@@ -46,7 +46,7 @@ export async function useGetTransactions(project_id) {
           total_tokens.value[j] = data[j].total_tokens;
           total_amounts.value[j] = data[j].total_amounts;
         }
-        console.log("total_tokens.value", total_tokens.value, total_amounts.value);
+        //console.log("total_tokens.value", total_tokens.value, total_amounts.value);
       }
     } catch (error) {
       alert(error.message);

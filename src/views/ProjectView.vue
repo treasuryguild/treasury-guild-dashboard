@@ -1,8 +1,7 @@
 <script setup>
-import { onMounted, ref, watchEffect, computed } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useStore } from "../store/index";
-import { supabase } from "../supabase";
 import { useGetWallet } from "../composables/getwallet";
 import { useGetAllStats } from "../composables/getallstats";
 import { useGetProject } from "../composables/getproject";
@@ -124,7 +123,7 @@ onMounted(async () => {
     //console.log("Its not null", everyProject)
   }
   store.changeAllProjects(everyProject);
-  
+
   for (let i in everyProject) {
     if (everyProject[i].group_name == store.group) {
       for (let j in everyProject[i].projects) {
@@ -275,12 +274,11 @@ async function getProjectDetails() {
   all_taskLabel.value = all_task_label.value;
   all_taskDescription.value = all_task_description.value;
   all_taskType.value = all_task_type.value;
-  const { all_dist_id, all_contributor_id, all_tokens, all_amounts } =
-    await useGetAllDistributions(project_idRender.value);
+  const { all_dist_id, all_contributor_id } = await useGetAllDistributions(
+    project_idRender.value
+  );
   distId.value = all_dist_id.value;
   contributorId.value = all_contributor_id.value;
-  tokensR.value = all_tokens.value;
-  amountsR.value = all_amounts.value;
   /*console.log(
     "test dist tokens",
     tokens.value,
@@ -408,12 +406,11 @@ async function getSingleTransaction(txid) {
   taskLabel.value = task_label.value;
   taskDescription.value = task_description.value;
   taskType.value = task_type.value;
-  const { dist_id, contributor_id, tokens, amounts } =
-    await useGetDistributions(contributionId.value[0]);
+  const { dist_id, contributor_id } = await useGetDistributions(
+    contributionId.value[0]
+  );
   distId.value = dist_id.value;
   contributorId.value = contributor_id.value;
-  tokensR.value = tokens.value;
-  amountsR.value = amounts.value;
 }
 
 const rowClasses = computed(() => (row) => {
@@ -622,12 +619,12 @@ async function projectChart() {
       </div>
       <div class="minicont">
         <div id="stats">
-            <div id="stat">Number of txs - {{ totaltxs }}</div>
-            <div id="stat">Total Distributions - {{ totalPayouts }}</div>
-            <div id="stat">Total In - {{ totalIn }}</div>
-            <div id="stat">Total Out - {{ totalOut }}</div>
-            <div id="stat">Fees - {{ totalFees }}</div>
-            <div id="stat">Balance - {{ lovelaceR }}</div>
+          <div id="stat">Number of txs - {{ totaltxs }}</div>
+          <div id="stat">Total Distributions - {{ totalPayouts }}</div>
+          <div id="stat">Total In - {{ totalIn }}</div>
+          <div id="stat">Total Out - {{ totalOut }}</div>
+          <div id="stat">Fees - {{ totalFees }}</div>
+          <div id="stat">Balance - {{ lovelaceR }}</div>
         </div>
         <div id="statschart">
           <canvas id="myChart2"></canvas>
@@ -646,7 +643,11 @@ async function projectChart() {
             <tr v-for="row in txrows" :key="row.id" :class="rowClasses(row)">
               <td v-for="column in header" :key="column">
                 <template v-if="column === 'TxView'">
-                  <a><RouterLink :to="`/transactions/${row[column]}`">TxView</RouterLink></a>
+                  <a
+                    ><RouterLink :to="`/transactions/${row[column]}`"
+                      >TxView</RouterLink
+                    ></a
+                  >
                 </template>
                 <template v-if="column === 'Metadata'">
                   <a v-bind:href="row[column]" target="_blank">Metadata</a>
@@ -807,7 +808,8 @@ table th:nth-of-type(1) {
   min-width: 128px;
 }
 
-table td:nth-of-type(n + 5) { /* Columns after 5 are text aligned right*/ 
+table td:nth-of-type(n + 5) {
+  /* Columns after 5 are text aligned right*/
   text-align: right;
 }
 table th:nth-of-type(n + 5) {

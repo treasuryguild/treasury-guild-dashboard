@@ -24,9 +24,7 @@ export async function useGetContributions(transaction_id) {
       if (error && status !== 406) throw error;
 
       if (data) {
-        for (let j in data) {
-          contributions.value = data;
-        }
+        contributions.value = data;
       }
     } catch (error) {
       alert(error.message);
